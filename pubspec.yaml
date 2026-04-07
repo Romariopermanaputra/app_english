@@ -1,0 +1,15 @@
+name: english_speaking_app
+description: English speaking practice for Android
+version: 1.0.0
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  speech_to_text: ^6.3.0  # ✅ Untuk mobile speech recognition
+  permission_handler: ^11.0.0  # ✅ Untuk request microphone permission
+
+flutter:
+  uses-material-design: true
