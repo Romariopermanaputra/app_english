@@ -1,0 +1,215 @@
+import 'package:flutter/material.dart';
+
+// widgets
+import '../widgets/progress_bar.dart';
+import '../widgets/feedback_badge.dart';
+import '../widgets/action_button.dart';
+import '../widgets/score_display.dart';
+import '../widgets/result_dialog.dart';
+
+class WritingScreen extends StatefulWidget {
+  const WritingScreen({super.key});
+
+  @override
+  State<WritingScreen> createState() => _WritingScreenState();
+}
+
+class _WritingScreenState extends State<WritingScreen> {
+  final TextEditingController c = TextEditingController();
+
+  // 🔥 FIX: kasih tipe biar tidak dynamic error
+  final List<Map<String, String>> questions = [
+    {"q": "Hello", "a": "hello"},
+    {"q": "Thank you", "a": "thank you"},
+    {"q": "Good morning", "a": "good morning"},
+    {"q": "How are you", "a": "how are you"},
+    {"q": "I love English", "a": "i love english"},
+  ];
+
+  int index = 0;
+  int score = 0;
+  String feedback = "";
+
+  void check() {
+    String user = c.text.toLowerCase().trim();
+
+    // 🔥 FIX: null safety aman
+    String answer = questions[index]['a'] ?? "";
+
+    if (user == answer) {
+      feedback = "correct";
+      score += 10;
+    } else {
+      feedback = "wrong";
+    }
+
+    setState(() {});
+  }
+
+  void next() {
+    if (index < questions.length - 1) {
+      index++;
+      c.clear();
+      feedback = "";
+    } else {
+      showResultDialog();
+    }
+
+    setState(() {});
+  }
+
+  void showResultDialog() {
+    int correct = score ~/ 10;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => ResultDialog(
+        correct: correct,
+        total: questions.length,
+        score: score,
+        onClose: () {
+          Navigator.pop(context);
+          Navigator.pop(context);
+        },
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    c.dispose(); // 🔥 penting biar tidak memory leak
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final q = questions[index];
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Writing Practice"),
+        backgroundColor: const Color(0xFF4ECDC4),
+        foregroundColor: Colors.white,
+        elevation: 0,
+      ),
+      body: Column(
+        children: [
+          ProgressBar(
+            current: index + 1,
+            total: questions.length,
+            color: const Color(0xFF4ECDC4),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                children: [
+                  // Question Card
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(32),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        const Icon(
+                          Icons.edit_note,
+                          size: 48,
+                          color: Color(0xFF4ECDC4),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          "Write this phrase:",
+                          style: TextStyle(color: Colors.grey, fontSize: 14),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          '"${q['q'] ?? ""}"',
+                          style: const TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF2D3748),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  // Input
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: TextField(
+                      controller: c,
+                      decoration: InputDecoration(
+                        hintText: "Type your answer here...",
+                        hintStyle: TextStyle(color: Colors.grey[400]),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide.none,
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: const EdgeInsets.all(20),
+                      ),
+                      style: const TextStyle(fontSize: 18),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Button Check
+                  if (feedback.isEmpty)
+                    ActionButton(
+                      text: "Check Answer",
+                      onTap: check,
+                      color: const Color(0xFF4ECDC4),
+                    ),
+
+                  // Feedback
+                  if (feedback.isNotEmpty) ...[
+                    FeedbackBadge(isCorrect: feedback == "correct"),
+                    const SizedBox(height: 24),
+                    ActionButton(
+                      text: index < questions.length - 1
+                          ? "Next Question"
+                          : "See Results",
+                      onTap: next,
+                      color: const Color(0xFF4ECDC4),
+                    ),
+                  ],
+
+                  const SizedBox(height: 24),
+                  ScoreDisplay(score: score),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
