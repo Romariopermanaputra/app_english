@@ -260,19 +260,31 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
   Widget _buildPodium(String Function(String) s) {
     final top3 = _entries.take(3).toList();
 
-    // Susun: 2nd, 1st, 3rd
-    final ordered = <int>[]; // index di top3
-    if (top3.length >= 2) ordered.add(1); // silver
-    if (top3.isNotEmpty)  ordered.insert(top3.length >= 2 ? 1 : 0, 0); // gold
-    if (top3.length >= 3) ordered.add(2); // bronze
-
-    final heights = [100.0, 130.0, 80.0]; // silver, gold, bronze
-    final colors  = [
-      const Color(0xFFC0C0C0), // silver
-      const Color(0xFFFFD700), // gold
-      const Color(0xFFCD7F32), // bronze
+    // Data tiap slot podium (urutan tampil: kiri=silver, tengah=gold, kanan=bronze)
+    // slot: [dataIndex, barHeight, color, medal]
+    final slots = <Map<String, dynamic>>[
+      // Slot KIRI  = rank 2 (perak)
+      {
+        'entry':  top3.length >= 2 ? top3[1] : null,
+        'height': 100.0,
+        'color':  const Color(0xFFC0C0C0),
+        'medal':  '🥈',
+      },
+      // Slot TENGAH = rank 1 (emas)
+      {
+        'entry':  top3.isNotEmpty ? top3[0] : null,
+        'height': 130.0,
+        'color':  const Color(0xFFFFD700),
+        'medal':  '🥇',
+      },
+      // Slot KANAN  = rank 3 (perunggu)
+      {
+        'entry':  top3.length >= 3 ? top3[2] : null,
+        'height': 80.0,
+        'color':  const Color(0xFFCD7F32),
+        'medal':  '🥉',
+      },
     ];
-    final medals = ['🥈', '🥇', '🥉'];
 
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 20, 16, 8),
@@ -304,21 +316,14 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisAlignment: MainAxisAlignment.center,
-            children: ordered.map((orderIdx) {
-              // orderIdx: 0=silver pos, 1=gold pos, 2=bronze pos
-              final dataIdx = ordered.indexOf(orderIdx) == 0
-                  ? (top3.length >= 2 ? 1 : -1)
-                  : ordered.indexOf(orderIdx) == 1
-                      ? 0
-                      : 2;
-              final entry = top3.length > dataIdx && dataIdx >= 0
-                  ? top3[dataIdx]
-                  : null;
-              final color  = colors[orderIdx];
-              final height = heights[orderIdx];
-              final medal  = medals[orderIdx];
+            children: slots.map((slot) {
+              final entry  = slot['entry']  as LeaderboardEntry?;
+              final height = slot['height'] as double;
+              final color  = slot['color']  as Color;
+              final medal  = slot['medal']  as String;
 
-              if (entry == null) return const SizedBox(width: 90);
+              // Jika tidak ada pemain untuk slot ini, tampilkan kotak kosong
+              if (entry == null) return const SizedBox(width: 92);
 
               final isMe = entry.username == _currentUser;
 
@@ -327,16 +332,17 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    // Medal
+                    // Medal emoji
                     Text(medal, style: const TextStyle(fontSize: 24)),
                     const SizedBox(height: 4),
-                    // Avatar
+
+                    // Avatar lingkaran
                     Container(
-                      width: 44,
-                      height: 44,
+                      width: 46,
+                      height: 46,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: color.withOpacity(0.25),
+                        color: color.withOpacity(0.2),
                         border: Border.all(
                           color: isMe ? Colors.greenAccent : color,
                           width: isMe ? 2.5 : 2,
@@ -348,12 +354,13 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
                           style: TextStyle(
                             color: isMe ? Colors.greenAccent : color,
                             fontWeight: FontWeight.bold,
-                            fontSize: 18,
+                            fontSize: 19,
                           ),
                         ),
                       ),
                     ),
                     const SizedBox(height: 6),
+
                     // Username
                     SizedBox(
                       width: 80,
@@ -368,6 +375,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
+
                     // Skor
                     Text(
                       '${entry.totalScore} pts',
@@ -378,6 +386,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
                       ),
                     ),
                     const SizedBox(height: 6),
+
                     // Podium bar
                     Container(
                       width: 80,
@@ -386,12 +395,15 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
-                          colors: [color.withOpacity(0.5), color.withOpacity(0.2)],
+                          colors: [
+                            color.withOpacity(0.55),
+                            color.withOpacity(0.2),
+                          ],
                         ),
                         borderRadius: const BorderRadius.vertical(
                           top: Radius.circular(8),
                         ),
-                        border: Border.all(color: color.withOpacity(0.3)),
+                        border: Border.all(color: color.withOpacity(0.35)),
                       ),
                       child: Center(
                         child: Text(
