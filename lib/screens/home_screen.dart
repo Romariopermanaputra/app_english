@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../utils/app_language.dart';
 import '../utils/app_strings.dart';
 
@@ -36,14 +37,71 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   void _onButtonPressed(String key, AnimationController controller) {
     controller.forward().then((_) {
-      Future.delayed(const Duration(milliseconds: 150), () => controller.reverse());
+      Future.delayed(const Duration(milliseconds: 150), () {
+        if (controller.isAnimating || controller.isCompleted) {
+          controller.reverse();
+        }
+      });
     });
 
     if (key == 'start_game') {
       Navigator.pushNamed(context, '/level-map');
     } else if (key == 'settings') {
       Navigator.pushNamed(context, '/settings');
+    } else if (key == 'exit') {
+      _showExitDialog();
     }
+  }
+
+  void _showExitDialog() {
+    final lang = AppLanguage().language;
+    final s    = (String key) => AppStrings.get(key, lang);
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            const Text('🚪 ', style: TextStyle(fontSize: 22)),
+            Text(
+              s('exit_title'),
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        content: Text(s('exit_msg')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              s('cancel'),
+              style: TextStyle(color: Colors.grey.shade700),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              // Keluar dari aplikasi
+              SystemNavigator.pop();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red.shade700,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: Text(
+              s('exit'),
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override

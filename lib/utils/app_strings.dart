@@ -65,6 +65,10 @@ class AppStrings {
       'register_success':     '✅ Akun baru dibuat! Selamat bermain!',
       'logout_success':       '👋 Berhasil keluar!',
 
+      // Dialog keluar aplikasi
+      'exit_title':           'Keluar Aplikasi',
+      'exit_msg':             'Apakah kamu yakin ingin keluar dari aplikasi?',
+
       // Versi
       'version':              'EngLearn v1.0.0',
     },
@@ -132,6 +136,10 @@ class AppStrings {
       'login_success':        '✅ Welcome back!',
       'register_success':     '✅ New account created! Have fun!',
       'logout_success':       '👋 Signed out!',
+
+      // Exit dialog
+      'exit_title':           'Exit Application',
+      'exit_msg':             'Are you sure you want to exit the application?',
 
       // Version
       'version':              'EngLearn v1.0.0',
