@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../screens/writing_screen.dart';
 import '../screens/speaking_screen.dart';
 import '../screens/reading_screen.dart';
+import '../utils/app_language.dart';
+import '../utils/app_strings.dart';
 
 class LevelMapScreen extends StatefulWidget {
   const LevelMapScreen({super.key});
@@ -86,7 +88,13 @@ class _LevelMapScreenState extends State<LevelMapScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return ListenableBuilder(
+      listenable: AppLanguage(),
+      builder: (context, _) {
+        final lang = AppLanguage().language;
+        final s    = (String key) => AppStrings.get(key, lang);
+
+        return Scaffold(
       // 🗝️ APP BAR DENGAN TOMBOL BACK (STYLE KOTAK PUTIH)
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -126,7 +134,7 @@ class _LevelMapScreenState extends State<LevelMapScreen>
           // 🖼️ BACKGROUND IMAGE
           Positioned.fill(
             child: Image.asset(
-              'images/level_map_screen.png',
+              'assets/images/ENGLearn.png',
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 print('❌ [ERROR] Gagal load background: $error');
@@ -168,11 +176,10 @@ class _LevelMapScreenState extends State<LevelMapScreen>
                 Column(
                   children: [
                     Text(
-                      "Choose Your",
+                      s('choose_level'),
                       style: TextStyle(
                         fontSize: 26,
                         fontStyle: FontStyle.italic,
-                        fontFamily: 'Pacifico',
                         color: Colors.brown.withOpacity(0.0),
                       ),
                     ),
@@ -187,7 +194,7 @@ class _LevelMapScreenState extends State<LevelMapScreen>
                         color: Colors.white.withOpacity(0.0),
                       ),
                       child: Text(
-                        "ADVENTURE",
+                        s('adventure'),
                         style: TextStyle(
                           fontSize: 54,
                           fontWeight: FontWeight.w900,
@@ -205,26 +212,11 @@ class _LevelMapScreenState extends State<LevelMapScreen>
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _springLevelButton(
-                      "Level 1",
-                      Icons.menu_book, // 📖 Icon Reading
-                      Colors.blue.shade700,
-                      _level1Controller,
-                    ),
+                    _springLevelButton(s('level_1'), Icons.menu_book, Colors.blue.shade700,   _level1Controller),
                     const SizedBox(height: 25),
-                    _springLevelButton(
-                      "Level 2",
-                      Icons.edit, // ✍️ Icon Writing
-                      Colors.green.shade700,
-                      _level2Controller,
-                    ),
+                    _springLevelButton(s('level_2'), Icons.edit,      Colors.green.shade700,  _level2Controller),
                     const SizedBox(height: 25),
-                    _springLevelButton(
-                      "Level 3",
-                      Icons.mic, // 🎤 Icon Speaking
-                      Colors.orange.shade700,
-                      _level3Controller,
-                    ),
+                    _springLevelButton(s('level_3'), Icons.mic,       Colors.orange.shade700, _level3Controller),
                     const SizedBox(height: 40),
                   ],
                 ),
@@ -235,6 +227,8 @@ class _LevelMapScreenState extends State<LevelMapScreen>
           ),
         ],
       ),
+    );
+      },
     );
   }
 

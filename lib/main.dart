@@ -1,25 +1,27 @@
 import 'package:flutter/material.dart';
-// import 'package:flutter_animate/flutter_animate.dart'; // ✨ Komentar dulu, nanti aktifkan
-import 'package:supabase_flutter/supabase_flutter.dart'; // ☁️ Cloud sync
-
-// 📁 Import screens — KOMENTARI yang file-nya BELUM ADA
-import 'screens/home_screen.dart';            // ✅ Menu utama (sudah ada)
-// import 'screens/grade_selection_screen.dart'; // ❌ Belum ada → komentar
-import 'screens/level_map_screen.dart';       // ❌ Belum ada → komentar
-// import 'screens/listening_screen.dart';       // ❌ Belum ada → komentar
-// import 'screens/writing_screen.dart';         // ❌ Belum ada → komentar
-// import 'screens/speaking_screen.dart';        // ❌ Belum ada → komentar
-// import 'screens/leaderboard_screen.dart';     // ❌ Belum ada → komentar
-// import 'screens/settings_screen.dart';        // ❌ Belum ada → komentar
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'screens/home_screen.dart';
+import 'screens/level_map_screen.dart';
+import 'screens/settings_screen.dart';
+import 'screens/login_screen.dart';
+import 'utils/app_language.dart';
+import 'utils/auth_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  await Supabase.initialize(
-    url: 'https://jqfoqxrtbkoojkiwjwgo.supabase.co',
-    anonKey: 'sb_publishable_3oQOWXT5hMgkc5GstSqNEw_at1AqBXr',
-  );
-  
+
+  // Inisialisasi Supabase — jika URL tidak valid, error ditangkap AuthService
+  try {
+    await Supabase.initialize(
+      url: 'https://jqfoqxrtbkoojkiwjwgo.supabase.co',
+      anonKey: 'sb_publishable_3oQOWXT5hMgkc5GstSqNEw_at1AqBXr',
+    );
+  } catch (e) {
+    debugPrint('⚠️ Supabase init error: $e');
+  }
+
+  await AppLanguage().loadLanguage();
+
   runApp(const EngLearnApp());
 }
 
@@ -28,29 +30,50 @@ class EngLearnApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'EngLearn',
-      debugShowCheckedModeBanner: false,
-      
-      // 🎨 Tema sederhana (font custom dikomentar dulu)
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
-        // fontFamily: 'Fredoka', // ❌ Komentar dulu, nanti aktifkan setelah font didaftar
-      ),
-      
-      // 🏠 HomeScreen yang SUDAH ADA & working
-      home: const HomeScreen(),
-      
-      // 🗺️ Routes — KOMENTARI yang screen-nya belum dibuat
-      routes: {
-        '/home': (context) => const HomeScreen(),        // ✅ Sudah ada
-        '/level-map': (context) => const LevelMapScreen(),   // ❌ Belum ada
-        // '/listening': (context) => const ListeningScreen(),  // ❌ Belum ada
-        // '/writing': (context) => const WritingScreen(),      // ❌ Belum ada
-        // '/speaking': (context) => const SpeakingScreen(),    // ❌ Belum ada
-        // '/leaderboard': (context) => const LeaderboardScreen(), // ❌ Belum ada
-        // '/settings': (context) => const SettingsScreen(),    // ❌ Belum ada
+    return ListenableBuilder(
+      listenable: AppLanguage(),
+      builder: (context, _) {
+        return MaterialApp(
+          title: 'EngLearn',
+          debugShowCheckedModeBanner: false,
+          locale: Locale(AppLanguage().language),
+          theme: ThemeData(
+            useMaterial3: true,
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+          ),
+          home: const _AuthGate(),
+          routes: {
+            '/home':      (context) => const HomeScreen(),
+            '/level-map': (context) => const LevelMapScreen(),
+            '/settings':  (context) => const SettingsScreen(),
+            '/login':     (context) => const LoginScreen(),
+          },
+        );
+      },
+    );
+  }
+}
+
+/// AuthGate: cek login via AuthService (Supabase + fallback local).
+class _AuthGate extends StatelessWidget {
+  const _AuthGate();
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<bool>(
+      future: AuthService().isLoggedIn(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            backgroundColor: Color(0xFF1B5E20),
+            body: Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            ),
+          );
+        }
+
+        final isLoggedIn = snapshot.data ?? false;
+        return isLoggedIn ? const HomeScreen() : const LoginScreen();
       },
     );
   }
