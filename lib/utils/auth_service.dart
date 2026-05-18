@@ -2,151 +2,85 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-/// Wrapper auth yang mencoba Supabase terlebih dahulu.
-/// Jika Supabase tidak tersedia (URL salah/tidak aktif), 
-/// fallback ke local auth berbasis SharedPreferences.
+/// AuthService berbasis USERNAME — tidak perlu email/password.
+/// Data disimpan ke tabel `players` di Supabase.
+/// Fallback ke SharedPreferences jika Supabase tidak tersedia.
 class AuthService {
   static final AuthService _instance = AuthService._internal();
   factory AuthService() => _instance;
   AuthService._internal();
 
-  static const _keyIsLoggedIn = 'local_auth_logged_in';
-  static const _keyEmail      = 'local_auth_email';
-  static const _keyPassword   = 'local_auth_password'; // hash sederhana (dev only)
+  static const _keyUsername = 'current_username';
+  static const _keyLoggedIn = 'is_logged_in';
 
-  bool _supabaseAvailable = true;
-
-  // ─── Cek apakah Supabase tersedia ────────────────────────────────
-  Future<bool> _checkSupabase() async {
-    try {
-      // Coba ping ringan: ambil session saat ini
-      Supabase.instance.client.auth.currentSession;
-      return true;
-    } catch (_) {
-      _supabaseAvailable = false;
-      return false;
-    }
-  }
+  final _supabase = Supabase.instance.client;
 
   // ─── Cek apakah user sudah login ─────────────────────────────────
   Future<bool> isLoggedIn() async {
-    // Cek Supabase session dulu
-    try {
-      final session = Supabase.instance.client.auth.currentSession;
-      if (session != null) return true;
-    } catch (_) {}
-
-    // Fallback: cek local SharedPreferences
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_keyIsLoggedIn) ?? false;
+    return prefs.getBool(_keyLoggedIn) ?? false;
   }
 
-  // ─── Ambil email user yang sedang login ──────────────────────────
-  Future<String> getCurrentEmail() async {
-    try {
-      final user = Supabase.instance.client.auth.currentUser;
-      if (user?.email != null) return user!.email!;
-    } catch (_) {}
-
+  // ─── Ambil username saat ini ──────────────────────────────────────
+  Future<String> getCurrentUsername() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_keyEmail) ?? '-';
+    return prefs.getString(_keyUsername) ?? '-';
   }
 
-  // ─── LOGIN ────────────────────────────────────────────────────────
-  Future<AuthResult> signIn(String email, String password) async {
-    // Coba Supabase auth
-    try {
-      await Supabase.instance.client.auth.signInWithPassword(
-        email: email,
-        password: password,
-      );
-      _supabaseAvailable = true;
-      return AuthResult(success: true);
-    } on AuthException catch (e) {
-      // Supabase ada tapi error auth (email salah, dll)
-      _supabaseAvailable = true;
-      return AuthResult(success: false, error: e.message);
-    } catch (e) {
-      // Supabase tidak tersedia → gunakan local auth
-      _supabaseAvailable = false;
-      debugPrint('⚠️ Supabase tidak tersedia, pakai local auth: $e');
-      return _localSignIn(email, password);
-    }
-  }
+  // Alias untuk kompatibilitas dengan settings_screen
+  Future<String> getCurrentEmail() => getCurrentUsername();
 
-  // ─── REGISTER ─────────────────────────────────────────────────────
-  Future<AuthResult> signUp(String email, String password) async {
+  // ─── LOGIN / REGISTER dengan username ────────────────────────────
+  /// Jika username sudah ada → login.
+  /// Jika belum ada → daftar otomatis lalu login.
+  Future<AuthResult> signInWithUsername(String username) async {
     try {
-      final res = await Supabase.instance.client.auth.signUp(
-        email: email,
-        password: password,
-      );
-      _supabaseAvailable = true;
-      // Jika email confirmation dimatikan, langsung login
-      if (res.session != null) {
-        return AuthResult(success: true, isNewUser: true);
+      // Cek apakah username sudah ada di tabel players
+      final existing = await _supabase
+          .from('players')
+          .select('id, username')
+          .eq('username', username)
+          .maybeSingle();
+
+      bool isNewUser = false;
+
+      if (existing == null) {
+        // Belum ada → buat akun baru
+        await _supabase.from('players').insert({
+          'username': username,
+          'created_at': DateTime.now().toIso8601String(),
+        });
+        isNewUser = true;
+        debugPrint('✅ Akun baru dibuat: $username');
+      } else {
+        debugPrint('✅ Login sebagai: $username');
       }
-      // Email confirmation diperlukan
-      return AuthResult(
-        success: true,
-        isNewUser: true,
-        needsEmailConfirmation: true,
-      );
-    } on AuthException catch (e) {
-      _supabaseAvailable = true;
-      return AuthResult(success: false, error: e.message);
+
+      // Simpan sesi lokal
+      await _saveSession(username);
+      return AuthResult(success: true, isNewUser: isNewUser);
     } catch (e) {
-      // Supabase tidak tersedia → simpan ke local
-      _supabaseAvailable = false;
-      debugPrint('⚠️ Supabase tidak tersedia, pakai local register: $e');
-      return _localSignUp(email, password);
+      debugPrint('⚠️ Supabase error, pakai local auth: $e');
+      // Fallback: simpan lokal saja
+      await _saveSession(username);
+      return AuthResult(success: true, isNewUser: true, usedFallback: true);
     }
   }
 
   // ─── LOGOUT ───────────────────────────────────────────────────────
   Future<void> signOut() async {
-    try {
-      await Supabase.instance.client.auth.signOut();
-    } catch (_) {}
-
-    // Hapus local session juga
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_keyIsLoggedIn);
-    await prefs.remove(_keyEmail);
+    await prefs.remove(_keyUsername);
+    await prefs.setBool(_keyLoggedIn, false);
+    debugPrint('👋 Logout berhasil');
   }
 
-  // ─── LOCAL AUTH (fallback) ────────────────────────────────────────
-  Future<AuthResult> _localSignIn(String email, String password) async {
+  // ─── SIMPAN SESI LOKAL ───────────────────────────────────────────
+  Future<void> _saveSession(String username) async {
     final prefs = await SharedPreferences.getInstance();
-    final savedEmail    = prefs.getString(_keyEmail) ?? '';
-    final savedPassword = prefs.getString(_keyPassword) ?? '';
-
-    if (savedEmail.isEmpty) {
-      return AuthResult(success: false, error: 'Akun tidak ditemukan. Silakan daftar dulu.');
-    }
-    if (email != savedEmail || password != savedPassword) {
-      return AuthResult(success: false, error: 'Email atau kata sandi salah.');
-    }
-
-    await prefs.setBool(_keyIsLoggedIn, true);
-    return AuthResult(success: true);
+    await prefs.setString(_keyUsername, username);
+    await prefs.setBool(_keyLoggedIn, true);
   }
-
-  Future<AuthResult> _localSignUp(String email, String password) async {
-    final prefs = await SharedPreferences.getInstance();
-    // Cek apakah email sudah terdaftar
-    final savedEmail = prefs.getString(_keyEmail) ?? '';
-    if (savedEmail == email) {
-      return AuthResult(success: false, error: 'Email sudah terdaftar.');
-    }
-
-    await prefs.setString(_keyEmail, email);
-    await prefs.setString(_keyPassword, password);
-    await prefs.setBool(_keyIsLoggedIn, true);
-    return AuthResult(success: true, isNewUser: true);
-  }
-
-  bool get isSupabaseAvailable => _supabaseAvailable;
 }
 
 /// Hasil operasi auth
@@ -155,11 +89,13 @@ class AuthResult {
   final String? error;
   final bool isNewUser;
   final bool needsEmailConfirmation;
+  final bool usedFallback;
 
   AuthResult({
     required this.success,
     this.error,
     this.isNewUser = false,
     this.needsEmailConfirmation = false,
+    this.usedFallback = false,
   });
 }

@@ -13,107 +13,68 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen>
     with SingleTickerProviderStateMixin {
-  final _emailController    = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmController  = TextEditingController();
+  final _usernameController = TextEditingController();
   final _formKey            = GlobalKey<FormState>();
 
-  bool _isLogin      = true;  // true = login, false = register
-  bool _isLoading    = false;
-  bool _obscurePass  = true;
-  bool _obscureConf  = true;
+  bool _isLoading = false;
 
   late AnimationController _slideController;
-  late Animation<Offset> _slideAnim;
-  late Animation<double>  _fadeAnim;
+  late Animation<Offset>   _slideAnim;
+  late Animation<double>   _fadeAnim;
 
   @override
   void initState() {
     super.initState();
     _slideController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 700),
     );
     _slideAnim = Tween<Offset>(
-      begin: const Offset(0, 0.3),
+      begin: const Offset(0, 0.35),
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic));
-    _fadeAnim = CurvedAnimation(parent: _slideController, curve: Curves.easeIn);
+    _fadeAnim  = CurvedAnimation(parent: _slideController, curve: Curves.easeIn);
     _slideController.forward();
   }
 
   @override
   void dispose() {
     _slideController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    _confirmController.dispose();
+    _usernameController.dispose();
     super.dispose();
-  }
-
-  void _toggleMode() {
-    setState(() => _isLogin = !_isLogin);
-    _slideController.reset();
-    _slideController.forward();
   }
 
   Future<void> _submit(String lang) async {
     final s = (String key) => AppStrings.get(key, lang);
-
     if (!_formKey.currentState!.validate()) return;
 
-    final email    = _emailController.text.trim();
-    final password = _passwordController.text.trim();
-
+    final username = _usernameController.text.trim();
     setState(() => _isLoading = true);
 
-    try {
-      if (_isLogin) {
-        // ─── LOGIN ───────────────────────────────────────────────────
-        final result = await AuthService().signIn(email, password);
-        if (!mounted) return;
-        if (result.success) {
-          _showSnack(s('login_success'), Colors.green.shade700);
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (_) => const HomeScreen()),
-            (route) => false,
-          );
-        } else {
-          _showSnack('❌ ${result.error}', Colors.red.shade700);
-        }
-      } else {
-        // ─── REGISTER ────────────────────────────────────────────────
-        final result = await AuthService().signUp(email, password);
-        if (!mounted) return;
-        if (result.success) {
-          if (result.needsEmailConfirmation) {
-            _showSnack(s('register_success'), Colors.blue.shade700);
-            setState(() => _isLogin = true);
-          } else {
-            _showSnack(s('login_success'), Colors.green.shade700);
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (_) => const HomeScreen()),
-              (route) => false,
-            );
-          }
-        } else {
-          _showSnack('❌ ${result.error}', Colors.red.shade700);
-        }
-      }
-    } catch (e) {
-      if (mounted) _showSnack('❌ $e', Colors.red.shade700);
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
+    final result = await AuthService().signInWithUsername(username);
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+
+    if (result.success) {
+      final msg = result.isNewUser ? s('register_success') : s('login_success');
+      _showSnack(msg, result.isNewUser ? Colors.blue.shade700 : Colors.green.shade700);
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        (route) => false,
+      );
+    } else {
+      _showSnack('❌ ${result.error}', Colors.red.shade700);
     }
   }
 
   void _showSnack(String msg, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(msg),
+        content: Text(msg, style: const TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: color,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.all(16),
       ),
     );
   }
@@ -139,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen>
                 ),
               ),
 
-              // 🌫️ Overlay gradient
+              // 🌫️ Overlay gradient gelap dari atas ke bawah
               Positioned.fill(
                 child: Container(
                   decoration: BoxDecoration(
@@ -147,8 +108,8 @@ class _LoginScreenState extends State<LoginScreen>
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        Colors.black.withOpacity(0.3),
-                        Colors.black.withOpacity(0.7),
+                        Colors.black.withOpacity(0.25),
+                        Colors.black.withOpacity(0.75),
                       ],
                     ),
                   ),
@@ -159,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen>
               SafeArea(
                 child: Center(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    padding: const EdgeInsets.symmetric(horizontal: 28),
                     child: SlideTransition(
                       position: _slideAnim,
                       child: FadeTransition(
@@ -167,52 +128,61 @@ class _LoginScreenState extends State<LoginScreen>
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            // Logo / Judul App
+                            // ─── LOGO ─────────────────────────────
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 24, vertical: 10),
+                                  horizontal: 28, vertical: 12),
                               decoration: BoxDecoration(
                                 color: Colors.white.withOpacity(0.15),
                                 borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
-                                    color: Colors.white.withOpacity(0.3)),
+                                    color: Colors.white.withOpacity(0.4),
+                                    width: 1.5),
                               ),
                               child: const Text(
                                 'ENGLEARN',
                                 style: TextStyle(
-                                  fontSize: 40,
+                                  fontSize: 44,
                                   fontWeight: FontWeight.w900,
-                                  letterSpacing: 3,
+                                  letterSpacing: 4,
                                   color: Colors.white,
                                   shadows: [
-                                    Shadow(color: Colors.black45, blurRadius: 10)
+                                    Shadow(color: Colors.black54, blurRadius: 12)
                                   ],
                                 ),
                               ),
                             ),
 
-                            const SizedBox(height: 8),
-                            Text(
-                              '🎓 Game Edukasi Bahasa Inggris',
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.8),
-                                fontSize: 14,
-                              ),
+                            const SizedBox(height: 10),
+
+                            // Ikon game + subtitle
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Text('🎓 ', style: TextStyle(fontSize: 18)),
+                                Text(
+                                  'Game Edukasi Bahasa Inggris',
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.85),
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ],
                             ),
 
-                            const SizedBox(height: 32),
+                            const SizedBox(height: 36),
 
-                            // ─── CARD LOGIN ──────────────────────────────
+                            // ─── CARD ─────────────────────────────
                             Container(
-                              padding: const EdgeInsets.all(24),
+                              padding: const EdgeInsets.all(28),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.95),
-                                borderRadius: BorderRadius.circular(24),
+                                color: Colors.white.withOpacity(0.96),
+                                borderRadius: BorderRadius.circular(28),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.25),
-                                    blurRadius: 20,
-                                    offset: const Offset(0, 10),
+                                    color: Colors.black.withOpacity(0.3),
+                                    blurRadius: 30,
+                                    offset: const Offset(0, 12),
                                   ),
                                 ],
                               ),
@@ -221,22 +191,18 @@ class _LoginScreenState extends State<LoginScreen>
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    // Judul Login/Register
+                                    // Judul
                                     Text(
-                                      _isLogin
-                                          ? s('login_title')
-                                          : s('register_title'),
+                                      s('login_title'),
                                       style: TextStyle(
-                                        fontSize: 24,
+                                        fontSize: 26,
                                         fontWeight: FontWeight.w900,
                                         color: Colors.green.shade800,
                                       ),
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      _isLogin
-                                          ? s('no_account') + s('register_link')
-                                          : s('have_account') + s('login_link'),
+                                      s('login_subtitle'),
                                       style: TextStyle(
                                         fontSize: 13,
                                         color: Colors.grey.shade600,
@@ -245,145 +211,120 @@ class _LoginScreenState extends State<LoginScreen>
 
                                     const SizedBox(height: 24),
 
-                                    // Email Field
-                                    _inputField(
-                                      controller: _emailController,
-                                      hint: s('email_hint'),
-                                      icon: Icons.email_outlined,
-                                      keyboardType: TextInputType.emailAddress,
+                                    // ─── USERNAME FIELD ───────────
+                                    TextFormField(
+                                      controller: _usernameController,
+                                      textCapitalization: TextCapitalization.none,
+                                      decoration: InputDecoration(
+                                        hintText: s('username_hint'),
+                                        prefixIcon: Icon(
+                                          Icons.person_outline,
+                                          color: Colors.green.shade700,
+                                        ),
+                                        filled: true,
+                                        fillColor: Colors.grey.shade100,
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                          borderSide: BorderSide.none,
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                          borderSide: BorderSide(
+                                              color: Colors.green.shade700,
+                                              width: 2),
+                                        ),
+                                        errorBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                          borderSide: const BorderSide(
+                                              color: Colors.red, width: 1.5),
+                                        ),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                horizontal: 16, vertical: 16),
+                                      ),
                                       validator: (v) {
                                         if (v == null || v.trim().isEmpty) {
-                                          return s('field_empty');
+                                          return s('username_empty');
                                         }
-                                        if (!v.contains('@')) return 'Email tidak valid.';
+                                        if (v.trim().length < 3) {
+                                          return s('username_short');
+                                        }
+                                        final valid =
+                                            RegExp(r'^[a-zA-Z0-9_]+$');
+                                        if (!valid.hasMatch(v.trim())) {
+                                          return s('username_invalid');
+                                        }
                                         return null;
                                       },
                                     ),
 
-                                    const SizedBox(height: 14),
+                                    const SizedBox(height: 8),
 
-                                    // Password Field
-                                    _inputField(
-                                      controller: _passwordController,
-                                      hint: s('password_hint'),
-                                      icon: Icons.lock_outline,
-                                      obscure: _obscurePass,
-                                      suffixIcon: IconButton(
-                                        icon: Icon(
-                                          _obscurePass
-                                              ? Icons.visibility_off
-                                              : Icons.visibility,
-                                          color: Colors.grey,
+                                    // Hint kecil
+                                    Padding(
+                                      padding:
+                                          const EdgeInsets.only(left: 4),
+                                      child: Text(
+                                        '💡 Username baru? Akun otomatis dibuat!',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: Colors.grey.shade500,
+                                          fontStyle: FontStyle.italic,
                                         ),
-                                        onPressed: () => setState(
-                                            () => _obscurePass = !_obscurePass),
                                       ),
-                                      validator: (v) {
-                                        if (v == null || v.trim().isEmpty) {
-                                          return s('field_empty');
-                                        }
-                                        if (v.length < 6) return s('password_short');
-                                        return null;
-                                      },
                                     ),
-
-                                    // Confirm Password (hanya saat register)
-                                    if (!_isLogin) ...[
-                                      const SizedBox(height: 14),
-                                      _inputField(
-                                        controller: _confirmController,
-                                        hint: s('confirm_password'),
-                                        icon: Icons.lock_outline,
-                                        obscure: _obscureConf,
-                                        suffixIcon: IconButton(
-                                          icon: Icon(
-                                            _obscureConf
-                                                ? Icons.visibility_off
-                                                : Icons.visibility,
-                                            color: Colors.grey,
-                                          ),
-                                          onPressed: () => setState(
-                                              () => _obscureConf = !_obscureConf),
-                                        ),
-                                        validator: (v) {
-                                          if (v != _passwordController.text) {
-                                            return s('password_mismatch');
-                                          }
-                                          return null;
-                                        },
-                                      ),
-                                    ],
 
                                     const SizedBox(height: 24),
 
-                                    // Tombol Submit
+                                    // ─── TOMBOL MULAI ─────────────
                                     SizedBox(
                                       width: double.infinity,
-                                      height: 52,
+                                      height: 54,
                                       child: ElevatedButton(
                                         onPressed: _isLoading
                                             ? null
                                             : () => _submit(lang),
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.green.shade700,
+                                          backgroundColor:
+                                              Colors.green.shade700,
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(16),
+                                            borderRadius:
+                                                BorderRadius.circular(16),
                                           ),
                                           elevation: 4,
                                         ),
                                         child: _isLoading
                                             ? const SizedBox(
-                                                width: 24,
-                                                height: 24,
-                                                child: CircularProgressIndicator(
+                                                width: 26,
+                                                height: 26,
+                                                child:
+                                                    CircularProgressIndicator(
                                                   color: Colors.white,
                                                   strokeWidth: 2.5,
                                                 ),
                                               )
-                                            : Text(
-                                                _isLogin
-                                                    ? s('login_btn')
-                                                    : s('register_btn'),
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold,
-                                                  letterSpacing: 1,
-                                                ),
+                                            : Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  const Icon(
+                                                    Icons.play_arrow_rounded,
+                                                    color: Colors.white,
+                                                    size: 28,
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  Text(
+                                                    s('login_btn'),
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 18,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      letterSpacing: 1,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
-                                      ),
-                                    ),
-
-                                    const SizedBox(height: 16),
-
-                                    // Toggle Login/Register
-                                    Center(
-                                      child: GestureDetector(
-                                        onTap: _toggleMode,
-                                        child: RichText(
-                                          text: TextSpan(
-                                            style: TextStyle(
-                                                fontSize: 14,
-                                                color: Colors.grey.shade700),
-                                            children: [
-                                              TextSpan(
-                                                text: _isLogin
-                                                    ? s('no_account')
-                                                    : s('have_account'),
-                                              ),
-                                              TextSpan(
-                                                text: _isLogin
-                                                    ? s('register_link')
-                                                    : s('login_link'),
-                                                style: TextStyle(
-                                                  color: Colors.green.shade700,
-                                                  fontWeight: FontWeight.bold,
-                                                  decoration: TextDecoration.underline,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
                                       ),
                                     ),
                                   ],
@@ -391,7 +332,24 @@ class _LoginScreenState extends State<LoginScreen>
                               ),
                             ),
 
-                            const SizedBox(height: 24),
+                            const SizedBox(height: 28),
+
+                            // Hint karakter username
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                '🔤  Huruf, angka & underscore ( _ )  •  Min. 3 karakter',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.85),
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -403,44 +361,6 @@ class _LoginScreenState extends State<LoginScreen>
           ),
         );
       },
-    );
-  }
-
-  Widget _inputField({
-    required TextEditingController controller,
-    required String hint,
-    required IconData icon,
-    bool obscure = false,
-    Widget? suffixIcon,
-    TextInputType keyboardType = TextInputType.text,
-    String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      obscureText: obscure,
-      keyboardType: keyboardType,
-      validator: validator,
-      decoration: InputDecoration(
-        hintText: hint,
-        prefixIcon: Icon(icon, color: Colors.green.shade700),
-        suffixIcon: suffixIcon,
-        filled: true,
-        fillColor: Colors.grey.shade100,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Colors.green.shade700, width: 2),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Colors.red, width: 1.5),
-        ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      ),
     );
   }
 }

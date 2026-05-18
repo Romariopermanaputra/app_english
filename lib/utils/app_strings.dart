@@ -38,8 +38,8 @@ class AppStrings {
       'lang_id':              '🇮🇩  Bahasa Indonesia',
       'lang_en':              '🇬🇧  English',
       'reset_btn':            'Reset ke Default',
-      'logout_btn':           'Keluar Akun',
-      'logged_in_as':         'Masuk sebagai',
+      'logged_in_as':         'Bermain sebagai',
+      'logout_btn':           'Ganti Pemain',
 
       // Dialog reset
       'reset_title':          'Reset Pengaturan',
@@ -49,28 +49,21 @@ class AppStrings {
       'reset_snack':          '⚙️ Pengaturan direset ke default!',
 
       // Dialog logout
-      'logout_title':         'Keluar Akun',
-      'logout_msg':           'Apakah kamu yakin ingin keluar dari akun ini?',
+      'logout_title':         'Ganti Pemain',
+      'logout_msg':           'Keluar dari akun ini dan pilih username lain?',
       'logout_confirm':       'Keluar',
 
       // Login Screen
-      'login_title':          'Masuk',
-      'register_title':       'Daftar',
-      'email_hint':           'Email',
-      'password_hint':        'Kata Sandi',
-      'confirm_password':     'Konfirmasi Kata Sandi',
-      'login_btn':            'MASUK',
-      'register_btn':         'DAFTAR',
-      'no_account':           'Belum punya akun? ',
-      'have_account':         'Sudah punya akun? ',
-      'register_link':        'Daftar',
-      'login_link':           'Masuk',
-      'login_success':        '✅ Berhasil masuk!',
-      'register_success':     '✅ Pendaftaran berhasil! Cek email untuk verifikasi.',
+      'login_title':          'Masuk / Daftar',
+      'login_subtitle':       'Ketik username-mu untuk mulai bermain!',
+      'username_hint':        'Username',
+      'username_empty':       'Username tidak boleh kosong.',
+      'username_short':       'Username minimal 3 karakter.',
+      'username_invalid':     'Username hanya boleh huruf, angka, dan underscore.',
+      'login_btn':            'MULAI BERMAIN',
+      'login_success':        '✅ Selamat datang kembali!',
+      'register_success':     '✅ Akun baru dibuat! Selamat bermain!',
       'logout_success':       '👋 Berhasil keluar!',
-      'field_empty':          'Email dan kata sandi tidak boleh kosong.',
-      'password_mismatch':    'Kata sandi tidak cocok.',
-      'password_short':       'Kata sandi minimal 6 karakter.',
 
       // Versi
       'version':              'EngLearn v1.0.0',
@@ -113,8 +106,8 @@ class AppStrings {
       'lang_id':              '🇮🇩  Bahasa Indonesia',
       'lang_en':              '🇬🇧  English',
       'reset_btn':            'Reset to Default',
-      'logout_btn':           'Sign Out',
-      'logged_in_as':         'Signed in as',
+      'logged_in_as':         'Playing as',
+      'logout_btn':           'Switch Player',
 
       // Reset dialog
       'reset_title':          'Reset Settings',
@@ -124,28 +117,21 @@ class AppStrings {
       'reset_snack':          '⚙️ Settings reset to default!',
 
       // Logout dialog
-      'logout_title':         'Sign Out',
-      'logout_msg':           'Are you sure you want to sign out of this account?',
+      'logout_title':         'Switch Player',
+      'logout_msg':           'Sign out of this account and choose another username?',
       'logout_confirm':       'Sign Out',
 
       // Login Screen
-      'login_title':          'Sign In',
-      'register_title':       'Register',
-      'email_hint':           'Email',
-      'password_hint':        'Password',
-      'confirm_password':     'Confirm Password',
-      'login_btn':            'SIGN IN',
-      'register_btn':         'REGISTER',
-      'no_account':           "Don't have an account? ",
-      'have_account':         'Already have an account? ',
-      'register_link':        'Register',
-      'login_link':           'Sign In',
-      'login_success':        '✅ Signed in successfully!',
-      'register_success':     '✅ Registration successful! Check your email to verify.',
-      'logout_success':       '👋 Signed out successfully!',
-      'field_empty':          'Email and password cannot be empty.',
-      'password_mismatch':    'Passwords do not match.',
-      'password_short':       'Password must be at least 6 characters.',
+      'login_title':          'Sign In / Register',
+      'login_subtitle':       'Enter your username to start playing!',
+      'username_hint':        'Username',
+      'username_empty':       'Username cannot be empty.',
+      'username_short':       'Username must be at least 3 characters.',
+      'username_invalid':     'Username can only contain letters, numbers, and underscores.',
+      'login_btn':            'START PLAYING',
+      'login_success':        '✅ Welcome back!',
+      'register_success':     '✅ New account created! Have fun!',
+      'logout_success':       '👋 Signed out!',
 
       // Version
       'version':              'EngLearn v1.0.0',
