@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../utils/app_language.dart';
 import '../utils/app_strings.dart';
+import 'leaderboard_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -46,6 +47,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
     if (key == 'start_game') {
       Navigator.pushNamed(context, '/level-map');
+    } else if (key == 'leaderboard') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const LeaderboardScreen()),
+      );
     } else if (key == 'settings') {
       Navigator.pushNamed(context, '/settings');
     } else if (key == 'exit') {

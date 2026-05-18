@@ -7,6 +7,7 @@ import '../widgets/action_button.dart';
 import '../widgets/score_display.dart';
 import '../widgets/option_button.dart';
 import '../widgets/result_dialog.dart';
+import '../utils/score_service.dart';
 
 class ReadingScreen extends StatefulWidget {
   const ReadingScreen({super.key});
@@ -87,6 +88,15 @@ class _ReadingScreenState extends State<ReadingScreen> {
 
   void showResultDialog() {
     int correct = score ~/ 10;
+    final maxScore = questions.length * 10;
+
+    // Simpan skor ke Supabase
+    ScoreService().saveScore(
+      module:   'reading',
+      level:    1,
+      score:    score,
+      maxScore: maxScore,
+    );
 
     showDialog(
       context: context,

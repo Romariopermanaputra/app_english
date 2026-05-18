@@ -69,6 +69,22 @@ class AppStrings {
       'exit_title':           'Keluar Aplikasi',
       'exit_msg':             'Apakah kamu yakin ingin keluar dari aplikasi?',
 
+      // Leaderboard
+      'leaderboard_title':    'PERINGKAT',
+      'leaderboard_top3':     'PEMAIN TERBAIK',
+      'leaderboard_all':      'SEMUA PEMAIN',
+      'leaderboard_players':  'pemain',
+      'leaderboard_empty':    'Belum ada skor yang tersimpan.',
+      'leaderboard_play_hint':'Selesaikan game untuk muncul di sini!',
+      'score_saved':          '⭐ Skor tersimpan!',
+      'score_save_fail':      '⚠️ Gagal simpan skor.',
+      'game_result':          'Hasil Game',
+      'your_score':           'Skor kamu',
+      'accuracy':             'Akurasi',
+      'btn_leaderboard':      'Lihat Peringkat',
+      'btn_play_again':       'Main Lagi',
+      'btn_back':             'Kembali',
+
       // Versi
       'version':              'EngLearn v1.0.0',
     },
@@ -140,6 +156,22 @@ class AppStrings {
       // Exit dialog
       'exit_title':           'Exit Application',
       'exit_msg':             'Are you sure you want to exit the application?',
+
+      // Leaderboard
+      'leaderboard_title':    'LEADERBOARD',
+      'leaderboard_top3':     'TOP PLAYERS',
+      'leaderboard_all':      'ALL PLAYERS',
+      'leaderboard_players':  'players',
+      'leaderboard_empty':    'No scores saved yet.',
+      'leaderboard_play_hint':'Complete a game to appear here!',
+      'score_saved':          '⭐ Score saved!',
+      'score_save_fail':      '⚠️ Failed to save score.',
+      'game_result':          'Game Result',
+      'your_score':           'Your score',
+      'accuracy':             'Accuracy',
+      'btn_leaderboard':      'View Leaderboard',
+      'btn_play_again':       'Play Again',
+      'btn_back':             'Back',
 
       // Version
       'version':              'EngLearn v1.0.0',
