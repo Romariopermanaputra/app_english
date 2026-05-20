@@ -8,6 +8,7 @@ import '../widgets/score_display.dart';
 import '../widgets/option_button.dart';
 import '../widgets/result_dialog.dart';
 import '../utils/score_service.dart';
+import '../utils/progress_manager.dart'; // ✅ Import ProgressManager
 
 class ReadingScreen extends StatefulWidget {
   const ReadingScreen({super.key});
@@ -25,22 +26,22 @@ class _ReadingScreenState extends State<ReadingScreen> {
     {
       "q": "Who loves learning English?",
       "options": ["John", "Mike", "Sarah", "Tom"],
-      "a": "John"
+      "a": "John",
     },
     {
       "q": "What does John do every morning?",
       "options": ["Sleep", "Read", "Play", "Run"],
-      "a": "Read"
+      "a": "Read",
     },
     {
       "q": "Is John a student?",
       "options": ["Yes", "No", "Maybe", "Unknown"],
-      "a": "Yes"
+      "a": "Yes",
     },
     {
       "q": "When does John wake up?",
       "options": ["Late", "Early", "Noon", "Night"],
-      "a": "Early"
+      "a": "Early",
     },
     {
       "q": "What does John believe?",
@@ -48,9 +49,9 @@ class _ReadingScreenState extends State<ReadingScreen> {
         "Practice makes perfect",
         "Sleep is good",
         "Play is fun",
-        "Food is life"
+        "Food is life",
       ],
-      "a": "Practice makes perfect"
+      "a": "Practice makes perfect",
     },
   ];
 
@@ -86,15 +87,16 @@ class _ReadingScreenState extends State<ReadingScreen> {
     setState(() {});
   }
 
+  // ✅ UPDATED: Menambahkan ProgressManager.completeLevel(1)
   void showResultDialog() {
     int correct = score ~/ 10;
     final maxScore = questions.length * 10;
 
     // Simpan skor ke Supabase
     ScoreService().saveScore(
-      module:   'reading',
-      level:    1,
-      score:    score,
+      module: 'reading',
+      level: 1,
+      score: score,
       maxScore: maxScore,
     );
 
@@ -105,9 +107,17 @@ class _ReadingScreenState extends State<ReadingScreen> {
         correct: correct,
         total: questions.length,
         score: score,
-        onClose: () {
-          Navigator.pop(context);
-          Navigator.pop(context);
+        onClose: () async {
+          // 🎯 Simpan progress: Level 1 (Reading) selesai → buka Level 2
+          await ProgressManager.completeLevel(1);
+
+          debugPrint('✅ Reading Level completed! Progress saved.');
+
+          // Kembali ke LevelMapScreen (pop 2x: dialog + screen)
+          if (mounted) {
+            Navigator.pop(context); // tutup dialog
+            Navigator.pop(context); // kembali ke LevelMapScreen
+          }
         },
       ),
     );
@@ -165,26 +175,25 @@ class _ReadingScreenState extends State<ReadingScreen> {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: Text(
-                      q['q'] ?? "",
-                      textAlign: TextAlign.center,
-                    ),
+                    child: Text(q['q'] ?? "", textAlign: TextAlign.center),
                   ),
 
                   const SizedBox(height: 20),
 
                   // Options
-                  ...options.map((option) => Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: OptionButton(
-                          text: option,
-                          isSelected: selectedAnswer == option,
-                          isCorrect: feedback.isNotEmpty && option == q['a'],
-                          isWrong:
-                              feedback == "wrong" && selectedAnswer == option,
-                          onTap: feedback.isEmpty ? () => answer(option) : null,
-                        ),
-                      )),
+                  ...options.map(
+                    (option) => Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: OptionButton(
+                        text: option,
+                        isSelected: selectedAnswer == option,
+                        isCorrect: feedback.isNotEmpty && option == q['a'],
+                        isWrong:
+                            feedback == "wrong" && selectedAnswer == option,
+                        onTap: feedback.isEmpty ? () => answer(option) : null,
+                      ),
+                    ),
+                  ),
 
                   const SizedBox(height: 16),
 

@@ -6,6 +6,7 @@ import '../widgets/feedback_badge.dart';
 import '../widgets/action_button.dart';
 import '../widgets/score_display.dart';
 import '../widgets/result_dialog.dart';
+import '../utils/progress_manager.dart'; // ✅ Import ProgressManager
 
 class WritingScreen extends StatefulWidget {
   const WritingScreen({super.key});
@@ -58,6 +59,7 @@ class _WritingScreenState extends State<WritingScreen> {
     setState(() {});
   }
 
+  // ✅ UPDATED: Menambahkan ProgressManager.completeLevel(2)
   void showResultDialog() {
     int correct = score ~/ 10;
 
@@ -68,9 +70,17 @@ class _WritingScreenState extends State<WritingScreen> {
         correct: correct,
         total: questions.length,
         score: score,
-        onClose: () {
-          Navigator.pop(context);
-          Navigator.pop(context);
+        onClose: () async {
+          // 🎯 Simpan progress: Level 2 (Writing) selesai
+          await ProgressManager.completeLevel(2);
+
+          debugPrint('✅ Writing Level completed! Progress saved.');
+
+          // Kembali ke LevelMapScreen (pop 2x: dialog + screen)
+          if (mounted) {
+            Navigator.pop(context); // tutup dialog
+            Navigator.pop(context); // kembali ke LevelMapScreen
+          }
         },
       ),
     );

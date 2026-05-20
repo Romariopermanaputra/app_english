@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:speech_to_text/speech_recognition_result.dart';
+import '../utils/progress_manager.dart'; // ✅ Import ProgressManager
 
 class SpeakingScreen extends StatefulWidget {
   const SpeakingScreen({super.key});
@@ -59,11 +60,10 @@ class _SpeakingScreenState extends State<SpeakingScreen>
   }
 
   // ─── Inisialisasi Speech ───────────────────────────────────────────────────
-  // Tidak perlu permission_handler — speech_to_text sudah request izin sendiri
   Future<void> _initSpeech() async {
     try {
       _speechAvailable = await _speech.initialize(
-        debugLogging: true, // lihat log di terminal untuk debug
+        debugLogging: true,
         onError: (error) {
           debugPrint(
             '❌ Speech error: ${error.errorMsg} | permanent: ${error.permanent}',
@@ -73,7 +73,7 @@ class _SpeakingScreenState extends State<SpeakingScreen>
             _pulseController
               ..stop()
               ..reset();
-            if (error.permanent) _initSpeech(); // retry jika error permanen
+            if (error.permanent) _initSpeech();
           }
         },
         onStatus: (status) {
@@ -119,7 +119,6 @@ class _SpeakingScreenState extends State<SpeakingScreen>
 
     _pulseController.repeat(reverse: true);
 
-    // Ambil locale yang tersedia, prioritaskan bahasa Inggris
     final locales = await _speech.locales();
     String? selectedLocale;
     for (final locale in locales) {
@@ -131,21 +130,20 @@ class _SpeakingScreenState extends State<SpeakingScreen>
     debugPrint('🌐 Locale dipilih: $selectedLocale ?? default');
 
     await _speech.listen(
-      onResult: _onSpeechResult, // ← callback utama
+      onResult: _onSpeechResult,
       listenFor: const Duration(seconds: 10),
       pauseFor: const Duration(seconds: 3),
-      localeId: selectedLocale, // null = pakai locale default perangkat
-      partialResults: true, // ← WAJIB agar live text muncul saat bicara
+      localeId: selectedLocale,
+      partialResults: true,
       cancelOnError: false,
       listenMode: stt.ListenMode.confirmation,
       onSoundLevelChange: (level) {
-        // Kalau level berubah, berarti mic aktif menangkap suara
         debugPrint('🎙️ Sound level: $level');
       },
     );
   }
 
-  // ─── Callback hasil speech (dipanggil setiap ada kata baru) ───────────────
+  // ─── Callback hasil speech ───────────────────────────────────────────────
   void _onSpeechResult(SpeechRecognitionResult result) {
     debugPrint(
       '📝 Words: "${result.recognizedWords}" | final: ${result.finalResult}',
@@ -154,7 +152,6 @@ class _SpeakingScreenState extends State<SpeakingScreen>
 
     setState(() {
       if (result.finalResult) {
-        // Ucapan selesai → pindahkan ke recognizedText & cek jawaban
         _recognizedText = result.recognizedWords.toLowerCase().trim();
         _liveText = '';
         _isListening = false;
@@ -163,7 +160,6 @@ class _SpeakingScreenState extends State<SpeakingScreen>
           ..reset();
         _checkAnswer();
       } else {
-        // Masih bicara → tampilkan sebagai live text
         _liveText = result.recognizedWords;
       }
     });
@@ -180,7 +176,6 @@ class _SpeakingScreenState extends State<SpeakingScreen>
       setState(() {
         _isListening = false;
         if (_liveText.isNotEmpty) {
-          // Jadikan live text sebagai hasil akhir
           _recognizedText = _liveText.toLowerCase().trim();
           _liveText = '';
         }
@@ -199,7 +194,6 @@ class _SpeakingScreenState extends State<SpeakingScreen>
     final expected = _questions[_index]['a']!.toLowerCase().trim();
     final recognized = _recognizedText.toLowerCase().trim();
 
-    // Flexible matching: sama persis, atau saling contain
     final isCorrect =
         recognized == expected ||
         recognized.contains(expected) ||
@@ -232,6 +226,7 @@ class _SpeakingScreenState extends State<SpeakingScreen>
   }
 
   // ─── Dialog Hasil Akhir ───────────────────────────────────────────────────
+  // ✅ UPDATED: Menambahkan ProgressManager.completeLevel(3)
   void _showResultDialog() {
     final total = _questions.length * 10;
     final percent = (_score / total * 100).round();
@@ -273,13 +268,24 @@ class _SpeakingScreenState extends State<SpeakingScreen>
           ],
         ),
         actions: [
+          // ✅ TOMBOL "SELESAI" - Simpan progress Level 3
           TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
+            onPressed: () async {
+              // 🎯 Simpan progress: Level 3 selesai
+              await ProgressManager.completeLevel(3);
+
+              debugPrint('✅ Speaking Level completed! Progress saved.');
+
+              // Kembali ke LevelMapScreen (pop 2x: dialog + screen)
+              if (mounted) {
+                Navigator.pop(context); // tutup dialog
+                Navigator.pop(context); // kembali ke LevelMapScreen
+              }
             },
             child: const Text('Selesai', style: TextStyle(fontSize: 16)),
           ),
+
+          // 🔄 TOMBOL "ULANGI" - Tidak simpan progress, hanya restart quiz
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.orange,
@@ -288,7 +294,7 @@ class _SpeakingScreenState extends State<SpeakingScreen>
               ),
             ),
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.pop(context); // tutup dialog saja
               setState(() {
                 _index = 0;
                 _score = 0;
@@ -322,7 +328,6 @@ class _SpeakingScreenState extends State<SpeakingScreen>
     final q = _questions[_index];
     final isLastQuestion = _index == _questions.length - 1;
 
-    // Prioritaskan live text saat merekam, recognized text setelah selesai
     final displayText = _isListening && _liveText.isNotEmpty
         ? _liveText
         : _recognizedText;
@@ -482,7 +487,6 @@ class _SpeakingScreenState extends State<SpeakingScreen>
               const SizedBox(height: 20),
 
               // ── Kotak transkripsi LIVE ─────────────────────────────────────
-              // Selalu tampil agar layout tidak loncat
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 width: double.infinity,
@@ -529,7 +533,6 @@ class _SpeakingScreenState extends State<SpeakingScreen>
                         ),
                       ),
                     ),
-                    // Animasi titik saat live
                     if (isDisplayingLive) const _DotsIndicator(),
                   ],
                 ),
@@ -588,7 +591,6 @@ class _SpeakingScreenState extends State<SpeakingScreen>
                                           : Colors.red.shade700,
                                     ),
                                   ),
-                                  // Tampilkan koreksi jika salah
                                   if (_feedback == 'wrong')
                                     Text(
                                       'Yang benar: "${_questions[_index]['q']}"',
