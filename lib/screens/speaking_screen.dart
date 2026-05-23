@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:speech_to_text/speech_recognition_result.dart';
+import '../data/question_data.dart';
 import '../utils/progress_manager.dart'; // ✅ Import ProgressManager
 
 class SpeakingScreen extends StatefulWidget {
-  const SpeakingScreen({super.key});
+  final int chapter;
+  final int classNumber;
+
+  const SpeakingScreen({super.key, this.chapter = 1, this.classNumber = 4});
 
   @override
   State<SpeakingScreen> createState() => _SpeakingScreenState();
@@ -30,18 +34,13 @@ class _SpeakingScreenState extends State<SpeakingScreen>
   late Animation<double> _pulseAnimation;
 
   // ─── Daftar soal ──────────────────────────────────────────────────────────
-  final List<Map<String, String>> _questions = [
-    {"q": "Hello", "a": "hello"},
-    {"q": "Thank you", "a": "thank you"},
-    {"q": "Good morning", "a": "good morning"},
-    {"q": "How are you", "a": "how are you"},
-    {"q": "I love English", "a": "i love english"},
-  ];
+  late final List<Map<String, String>> _questions;
 
   // ─── Init ─────────────────────────────────────────────────────────────────
   @override
   void initState() {
     super.initState();
+    _questions = QuestionData.speaking(widget.classNumber, widget.chapter);
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),

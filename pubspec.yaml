@@ -29,8 +29,7 @@ dependencies:
   
   # 📱 Device Info (buat ID unik player)
   device_info_plus: ^9.1.1
-  #untuk membatasi soal 
-  shared_preferences: ^2.2.2
+  # untuk membatasi soal 
 
 dev_dependencies:
   flutter_test:

@@ -46,7 +46,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     });
 
     if (key == 'start_game') {
-      Navigator.pushNamed(context, '/level-map');
+      Navigator.pushNamed(context, '/class-map');
     } else if (key == 'leaderboard') {
       Navigator.push(
         context,
@@ -61,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   void _showExitDialog() {
     final lang = AppLanguage().language;
-    final s    = (String key) => AppStrings.get(key, lang);
+    String s(String key) => AppStrings.get(key, lang);
 
     showDialog(
       context: context,
@@ -116,7 +116,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       listenable: AppLanguage(),
       builder: (context, _) {
         final lang = AppLanguage().language;
-        final s    = (String key) => AppStrings.get(key, lang);
+        String s(String key) => AppStrings.get(key, lang);
 
         return Scaffold(
           body: Stack(

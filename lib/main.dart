@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'screens/home_screen.dart';
+import 'screens/class_map_screen.dart';
+import 'screens/chapter_map_screen.dart';
 import 'screens/level_map_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/login_screen.dart';
@@ -43,10 +45,12 @@ class EngLearnApp extends StatelessWidget {
           ),
           home: const _AuthGate(),
           routes: {
-            '/home':      (context) => const HomeScreen(),
-            '/level-map': (context) => const LevelMapScreen(),
-            '/settings':  (context) => const SettingsScreen(),
-            '/login':     (context) => const LoginScreen(),
+            '/home':        (context) => const HomeScreen(),
+            '/class-map':   (context) => const ClassMapScreen(),
+            '/chapter-map': (context) => const ChapterMapScreen(),
+            '/level-map':   (context) => const LevelMapScreen(),
+            '/settings':    (context) => const SettingsScreen(),
+            '/login':       (context) => const LoginScreen(),
           },
         );
       },

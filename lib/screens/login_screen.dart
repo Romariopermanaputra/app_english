@@ -45,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Future<void> _submit(String lang) async {
-    final s = (String key) => AppStrings.get(key, lang);
+    String s(String key) => AppStrings.get(key, lang);
     if (!_formKey.currentState!.validate()) return;
 
     final username = _usernameController.text.trim();
@@ -85,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen>
       listenable: AppLanguage(),
       builder: (context, _) {
         final lang = AppLanguage().language;
-        final s    = (String key) => AppStrings.get(key, lang);
+        String s(String key) => AppStrings.get(key, lang);
 
         return Scaffold(
           body: Stack(

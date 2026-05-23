@@ -57,7 +57,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
       listenable: AppLanguage(),
       builder: (context, _) {
         final lang = AppLanguage().language;
-        final s    = (String key) => AppStrings.get(key, lang);
+        String s(String key) => AppStrings.get(key, lang);
 
         return Scaffold(
           backgroundColor: const Color(0xFF0D1B2A),

@@ -96,7 +96,7 @@ class _SettingsScreenState extends State<SettingsScreen>
       listenable: AppLanguage(),
       builder: (context, _) {
         final lang = AppLanguage().language;
-        final s    = (String key) => AppStrings.get(key, lang);
+        String s(String key) => AppStrings.get(key, lang);
 
         return Scaffold(
           extendBodyBehindAppBar: true,
@@ -378,7 +378,7 @@ class _SettingsScreenState extends State<SettingsScreen>
       title: Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
       subtitle: Text(subtitle, style: const TextStyle(fontSize: 12)),
       value: value,
-      activeColor: Colors.green.shade600,
+      activeThumbColor: Colors.green.shade600,
       onChanged: onChanged,
     );
   }

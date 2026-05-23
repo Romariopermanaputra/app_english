@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 // widgets
+import '../data/question_data.dart';
 import '../widgets/progress_bar.dart';
 import '../widgets/feedback_badge.dart';
 import '../widgets/action_button.dart';
@@ -9,7 +10,10 @@ import '../widgets/result_dialog.dart';
 import '../utils/progress_manager.dart'; // ✅ Import ProgressManager
 
 class WritingScreen extends StatefulWidget {
-  const WritingScreen({super.key});
+  final int chapter;
+  final int classNumber;
+
+  const WritingScreen({super.key, this.chapter = 1, this.classNumber = 4});
 
   @override
   State<WritingScreen> createState() => _WritingScreenState();
@@ -17,15 +21,13 @@ class WritingScreen extends StatefulWidget {
 
 class _WritingScreenState extends State<WritingScreen> {
   final TextEditingController c = TextEditingController();
+  late final List<Map<String, String>> questions;
 
-  // 🔥 FIX: kasih tipe biar tidak dynamic error
-  final List<Map<String, String>> questions = [
-    {"q": "Hello", "a": "hello"},
-    {"q": "Thank you", "a": "thank you"},
-    {"q": "Good morning", "a": "good morning"},
-    {"q": "How are you", "a": "how are you"},
-    {"q": "I love English", "a": "i love english"},
-  ];
+  @override
+  void initState() {
+    super.initState();
+    questions = QuestionData.writing(widget.classNumber, widget.chapter);
+  }
 
   int index = 0;
   int score = 0;

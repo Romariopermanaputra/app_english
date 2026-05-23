@@ -7,7 +7,10 @@ import '../utils/app_strings.dart';
 import '../utils/progress_manager.dart'; // ← Import ProgressManager
 
 class LevelMapScreen extends StatefulWidget {
-  const LevelMapScreen({super.key});
+  final int chapter;
+  final int classNumber;
+
+  const LevelMapScreen({super.key, this.chapter = 1, this.classNumber = 4});
 
   @override
   State<LevelMapScreen> createState() => _LevelMapScreenState();
@@ -119,7 +122,9 @@ class _LevelMapScreenState extends State<LevelMapScreen>
         print('📖 Buka modul Reading');
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const ReadingScreen()),
+          MaterialPageRoute(
+            builder: (context) => ReadingScreen(chapter: widget.chapter, classNumber: widget.classNumber),
+          ),
         ).then((_) {
           // 🔄 PENTING: Refresh progress setelah user kembali dari screen soal
           print('🔙 [LevelMap] Returned from Reading, refreshing progress...');
@@ -129,7 +134,9 @@ class _LevelMapScreenState extends State<LevelMapScreen>
         print('✍️ Buka modul Writing');
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const WritingScreen()),
+          MaterialPageRoute(
+            builder: (context) => WritingScreen(chapter: widget.chapter, classNumber: widget.classNumber),
+          ),
         ).then((_) {
           print('🔙 [LevelMap] Returned from Writing, refreshing progress...');
           _loadProgress();
@@ -138,7 +145,9 @@ class _LevelMapScreenState extends State<LevelMapScreen>
         print('🎤 Buka modul Speaking');
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const SpeakingScreen()),
+          MaterialPageRoute(
+            builder: (context) => SpeakingScreen(chapter: widget.chapter, classNumber: widget.classNumber),
+          ),
         ).then((_) {
           print('🔙 [LevelMap] Returned from Speaking, refreshing progress...');
           _loadProgress();
@@ -153,7 +162,7 @@ class _LevelMapScreenState extends State<LevelMapScreen>
       listenable: AppLanguage(),
       builder: (context, _) {
         final lang = AppLanguage().language;
-        final s = (String key) => AppStrings.get(key, lang);
+        String s(String key) => AppStrings.get(key, lang);
 
         return Scaffold(
           // 🗝️ APP BAR DENGAN TOMBOL BACK (STYLE KOTAK PUTIH)
@@ -201,21 +210,21 @@ class _LevelMapScreenState extends State<LevelMapScreen>
                     print('❌ [ERROR] Gagal load background: $error');
                     return Container(
                       color: const Color(0xFFFDF5E6),
-                      child: Center(
+                      child: const Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.broken_image,
                               size: 80,
                               color: Colors.grey,
                             ),
-                            const SizedBox(height: 16),
-                            const Text(
+                            SizedBox(height: 16),
+                            Text(
                               'Background tidak ditemukan',
                               style: TextStyle(color: Colors.red, fontSize: 16),
                             ),
-                            const Text(
+                            Text(
                               'Cek terminal untuk detail error',
                               style: TextStyle(color: Colors.grey),
                             ),
@@ -237,7 +246,7 @@ class _LevelMapScreenState extends State<LevelMapScreen>
                     Column(
                       children: [
                         Text(
-                          s('choose_level'),
+                          '${s('chapter')} ${widget.chapter}',
                           style: TextStyle(
                             fontSize: 26,
                             fontStyle: FontStyle.italic,

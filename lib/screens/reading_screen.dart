@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 // widgets
+import '../data/question_data.dart';
 import '../widgets/progress_bar.dart';
 import '../widgets/feedback_badge.dart';
 import '../widgets/action_button.dart';
@@ -11,49 +12,25 @@ import '../utils/score_service.dart';
 import '../utils/progress_manager.dart'; // ✅ Import ProgressManager
 
 class ReadingScreen extends StatefulWidget {
-  const ReadingScreen({super.key});
+  final int chapter;
+  final int classNumber;
+
+  const ReadingScreen({super.key, this.chapter = 1, this.classNumber = 4});
 
   @override
   State<ReadingScreen> createState() => _ReadingScreenState();
 }
 
 class _ReadingScreenState extends State<ReadingScreen> {
-  final String text =
-      "John is a student who loves learning English. Every morning, he wakes up early and reads English books. He believes that practice makes perfect!";
+  late final String text;
+  late final List<Map<String, dynamic>> questions;
 
-  // 🔥 FIX: kasih tipe jelas
-  final List<Map<String, dynamic>> questions = [
-    {
-      "q": "Who loves learning English?",
-      "options": ["John", "Mike", "Sarah", "Tom"],
-      "a": "John",
-    },
-    {
-      "q": "What does John do every morning?",
-      "options": ["Sleep", "Read", "Play", "Run"],
-      "a": "Read",
-    },
-    {
-      "q": "Is John a student?",
-      "options": ["Yes", "No", "Maybe", "Unknown"],
-      "a": "Yes",
-    },
-    {
-      "q": "When does John wake up?",
-      "options": ["Late", "Early", "Noon", "Night"],
-      "a": "Early",
-    },
-    {
-      "q": "What does John believe?",
-      "options": [
-        "Practice makes perfect",
-        "Sleep is good",
-        "Play is fun",
-        "Food is life",
-      ],
-      "a": "Practice makes perfect",
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    text = QuestionData.readingText(widget.classNumber, widget.chapter);
+    questions = QuestionData.reading(widget.classNumber, widget.chapter);
+  }
 
   int index = 0;
   int score = 0;
