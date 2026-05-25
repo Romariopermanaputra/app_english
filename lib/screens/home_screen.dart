@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../utils/app_language.dart';
 import '../utils/app_strings.dart';
+import '../utils/responsive_helper.dart';
 import 'leaderboard_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -117,6 +118,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       builder: (context, _) {
         final lang = AppLanguage().language;
         String s(String key) => AppStrings.get(key, lang);
+        final responsive = context.responsive;
 
         return Scaffold(
           body: Stack(
@@ -132,59 +134,50 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
               // 📱 KONTEN UTAMA
               SafeArea(
-                child: Column(
+                child: ListView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: EdgeInsets.symmetric(horizontal: responsive.spacing20, vertical: responsive.spacing24),
                   children: [
-                    const Spacer(flex: 1),
-
-                    // 🏷️ JUDUL
-                    Column(
-                      children: [
-                        Text(
-                          s('welcome'),
-                          style: const TextStyle(
-                            fontSize: 26,
-                            fontStyle: FontStyle.italic,
-                            color: Colors.brown,
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            color: Colors.white.withOpacity(0.4),
-                          ),
-                          child: Text(
-                            s('app_title'),
-                            style: const TextStyle(
-                              fontSize: 54,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 2,
-                              color: Colors.brown,
-                            ),
-                          ),
-                        ),
-                      ],
+                    SizedBox(height: responsive.spacing40),
+                    Text(
+                      s('welcome'),
+                      textAlign: TextAlign.center,
+                      style: responsive.getTextStyle(
+                        size: TextSize.heading,
+                        color: Colors.brown,
+                        weight: FontWeight.normal,
+                      ),
                     ),
-
-                    const Spacer(flex: 2),
-
-                    // 🔘 TOMBOL MENU
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _springButton(s('start_game'), Icons.play_arrow,   Colors.green.shade700, _startController,    'start_game'),
-                        const SizedBox(height: 15),
-                        _springButton(s('leaderboard'), Icons.leaderboard, Colors.blue.shade700,  _rankController,     'leaderboard'),
-                        const SizedBox(height: 15),
-                        _springButton(s('settings'),    Icons.settings,    Colors.grey.shade700,  _settingsController, 'settings'),
-                        const SizedBox(height: 15),
-                        _springButton(s('exit'),        Icons.exit_to_app, Colors.red.shade700,   _exitController,     'exit'),
-                        const SizedBox(height: 40),
-                      ],
+                    SizedBox(height: responsive.spacing5),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: responsive.spacing20,
+                        vertical: responsive.spacing5,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+                        color: Colors.white.withOpacity(0.4),
+                      ),
+                      child: Text(
+                        s('app_title'),
+                        textAlign: TextAlign.center,
+                        style: responsive.getTextStyle(
+                          size: TextSize.xLarge,
+                          color: Colors.brown,
+                          weight: FontWeight.w900,
+                          letterSpacing: 2,
+                        ),
+                      ),
                     ),
-
-                    const Spacer(flex: 1),
+                    SizedBox(height: responsive.spacing40),
+                    Center(child: _springButton(s('start_game'), Icons.play_arrow,   Colors.green.shade700, _startController,    'start_game')),
+                    SizedBox(height: responsive.spacing15),
+                    Center(child: _springButton(s('leaderboard'), Icons.leaderboard, Colors.blue.shade700,  _rankController,     'leaderboard')),
+                    SizedBox(height: responsive.spacing15),
+                    Center(child: _springButton(s('settings'),    Icons.settings,    Colors.grey.shade700,  _settingsController, 'settings')),
+                    SizedBox(height: responsive.spacing15),
+                    Center(child: _springButton(s('exit'),        Icons.exit_to_app, Colors.red.shade700,   _exitController,     'exit')),
+                    SizedBox(height: responsive.spacing40),
                   ],
                 ),
               ),
@@ -210,37 +203,40 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           scale: 0.95 + (controller.value * 0.15),
           child: child,
         ),
-        child: Container(
-          width: 220,
-          height: 55,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(30),
-            border: Border.all(color: Colors.white.withOpacity(0.5), width: 3),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.25),
-                blurRadius: 12,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, color: Colors.white, size: 26),
-              const SizedBox(width: 12),
-              Text(
-                text,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+        child: Builder(builder: (context) {
+          final responsive = context.responsive;
+          return Container(
+            width: responsive.buttonWidthMedium,
+            height: responsive.buttonHeight,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(responsive.radiusXLarge),
+              border: Border.all(color: Colors.white.withOpacity(0.5), width: 3),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.25),
+                  blurRadius: 12,
+                  offset: Offset(0, responsive.spacing8),
                 ),
-              ),
-            ],
-          ),
-        ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, color: Colors.white, size: responsive.iconSizeMedium),
+                SizedBox(width: responsive.spacing12),
+                Text(
+                  text,
+                  style: context.responsive.getTextStyle(
+                    size: TextSize.bodyLarge,
+                    color: Colors.white,
+                    weight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
       ),
     );
   }

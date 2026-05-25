@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../screens/chapter_map_screen.dart';
 import '../utils/app_language.dart';
 import '../utils/app_strings.dart';
+import '../utils/responsive_helper.dart';
 
 class ClassMapScreen extends StatefulWidget {
   const ClassMapScreen({super.key});
@@ -66,11 +67,32 @@ class _ClassMapScreenState extends State<ClassMapScreen>
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios, color: Colors.brown),
-              onPressed: () => Navigator.pop(context),
-              tooltip: s('btn_back'),
-            ),
+            leading: Builder(builder: (context) {
+              final responsive = context.responsive;
+              return Padding(
+                padding: EdgeInsets.all(responsive.spacing12),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(responsive.radiusMedium),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.15),
+                        blurRadius: 6,
+                        offset: Offset(0, responsive.spacing4),
+                      ),
+                    ],
+                  ),
+                  child: IconButton(
+                    icon: Icon(Icons.arrow_back_ios, color: Colors.brown, size: context.responsive.iconSizeSmall),
+                    onPressed: () => Navigator.pop(context),
+                    tooltip: s('btn_back'),
+                    padding: EdgeInsets.all(responsive.spacing8),
+                    constraints: const BoxConstraints(),
+                  ),
+                ),
+              );
+            }),
           ),
           extendBodyBehindAppBar: true,
           body: Stack(
@@ -85,58 +107,62 @@ class _ClassMapScreenState extends State<ClassMapScreen>
                 ),
               ),
               SafeArea(
-                child: Column(
-                  children: [
-                    const Spacer(flex: 2),
-                    Text(
-                      s('choose_class'),
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.brown,
+                child: Builder(builder: (context) {
+                  final responsive = context.responsive;
+                  return ListView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: EdgeInsets.symmetric(horizontal: responsive.spacing20, vertical: responsive.spacing24),
+                    children: [
+                      SizedBox(height: responsive.spacing40),
+                      Text(
+                        s('choose_class'),
+                        textAlign: TextAlign.center,
+                        style: responsive.getTextStyle(
+                          size: TextSize.heading,
+                          color: Colors.brown,
+                          weight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      s('class_subtitle'),
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.brown.withOpacity(0.8),
+                      SizedBox(height: responsive.spacing8),
+                      Text(
+                        s('class_subtitle'),
+                        textAlign: TextAlign.center,
+                        style: responsive.getTextStyle(
+                          size: TextSize.body,
+                          color: Colors.brown.withOpacity(0.8),
+                        ),
                       ),
-                    ),
-                    const Spacer(flex: 1),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _springClassButton(
-                          s('class_4'),
-                          Icons.looks_4,
-                          Colors.purple.shade700,
-                          _class4Controller,
-                          4,
-                        ),
-                        const SizedBox(height: 20),
-                        _springClassButton(
-                          s('class_5'),
-                          Icons.looks_5,
-                          Colors.indigo.shade700,
-                          _class5Controller,
-                          5,
-                        ),
-                        const SizedBox(height: 20),
-                        _springClassButton(
-                          s('class_6'),
-                          Icons.looks_6,
-                          Colors.cyan.shade700,
-                          _class6Controller,
-                          6,
-                        ),
-                        const SizedBox(height: 40),
-                      ],
-                    ),
-                    const Spacer(flex: 2),
-                  ],
-                ),
+                      SizedBox(height: responsive.spacing40),
+                      Center(child: _springClassButton(
+                        s('class_4'),
+                        Icons.looks_4,
+                        Colors.purple.shade700,
+                        _class4Controller,
+                        4,
+                        responsive,
+                      )),
+                      SizedBox(height: responsive.spacing24),
+                      Center(child: _springClassButton(
+                        s('class_5'),
+                        Icons.looks_5,
+                        Colors.indigo.shade700,
+                        _class5Controller,
+                        5,
+                        responsive,
+                      )),
+                      SizedBox(height: responsive.spacing24),
+                      Center(child: _springClassButton(
+                        s('class_6'),
+                        Icons.looks_6,
+                        Colors.cyan.shade700,
+                        _class6Controller,
+                        6,
+                        responsive,
+                      )),
+                      SizedBox(height: responsive.spacing40),
+                    ],
+                  );
+                }),
               ),
             ],
           ),
@@ -151,6 +177,7 @@ class _ClassMapScreenState extends State<ClassMapScreen>
     Color color,
     AnimationController controller,
     int classNumber,
+    ResponsiveHelper responsive,
   ) {
     return GestureDetector(
       onTapDown: (_) => _onClassPressed(classNumber, controller),
@@ -164,8 +191,8 @@ class _ClassMapScreenState extends State<ClassMapScreen>
               child: child,
             ),
             child: Container(
-              width: 100,
-              height: 100,
+              width: responsive.spacing32 * 2.2,
+              height: responsive.spacing32 * 2.2,
               decoration: BoxDecoration(
                 color: color,
                 shape: BoxShape.circle,
@@ -174,21 +201,21 @@ class _ClassMapScreenState extends State<ClassMapScreen>
                   BoxShadow(
                     color: Colors.black.withOpacity(0.25),
                     blurRadius: 12,
-                    offset: const Offset(0, 6),
+                    offset: Offset(0, responsive.spacing8),
                   ),
                 ],
               ),
               child: Center(
-                child: Icon(icon, color: Colors.white, size: 40),
+                child: Icon(icon, color: Colors.white, size: responsive.iconSizeLarge),
               ),
             ),
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: responsive.spacing12),
           Text(
             text,
-            style: const TextStyle(
+            style: TextStyle(
               color: Colors.brown,
-              fontSize: 16,
+              fontSize: responsive.fontSizeBody,
               fontWeight: FontWeight.bold,
             ),
           ),

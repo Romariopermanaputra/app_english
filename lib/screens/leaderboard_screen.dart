@@ -3,6 +3,7 @@ import '../utils/app_language.dart';
 import '../utils/app_strings.dart';
 import '../utils/auth_service.dart';
 import '../utils/score_service.dart';
+import '../utils/responsive_helper.dart';
 
 class LeaderboardScreen extends StatefulWidget {
   const LeaderboardScreen({super.key});

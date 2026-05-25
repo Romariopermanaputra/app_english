@@ -4,7 +4,8 @@ import '../screens/speaking_screen.dart';
 import '../screens/reading_screen.dart';
 import '../utils/app_language.dart';
 import '../utils/app_strings.dart';
-import '../utils/progress_manager.dart'; // ← Import ProgressManager
+import '../utils/progress_manager.dart';
+import '../utils/responsive_helper.dart';
 
 class LevelMapScreen extends StatefulWidget {
   final int chapter;
@@ -169,33 +170,36 @@ class _LevelMapScreenState extends State<LevelMapScreen>
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
-            leading: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.15),
-                      blurRadius: 6,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: IconButton(
-                  icon: const Icon(
-                    Icons.arrow_back_ios,
-                    color: Colors.brown,
-                    size: 18,
+            leading: Builder(builder: (context) {
+              final responsive = context.responsive;
+              return Padding(
+                padding: EdgeInsets.all(responsive.spacing12),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(responsive.radiusMedium),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.15),
+                        blurRadius: 6,
+                        offset: Offset(0, responsive.spacing4),
+                      ),
+                    ],
                   ),
-                  onPressed: () => Navigator.pop(context),
-                  tooltip: 'Kembali',
-                  padding: const EdgeInsets.all(8),
-                  constraints: const BoxConstraints(),
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.arrow_back_ios,
+                      color: Colors.brown,
+                      size: responsive.iconSizeSmall,
+                    ),
+                    onPressed: () => Navigator.pop(context),
+                    tooltip: 'Kembali',
+                    padding: EdgeInsets.all(responsive.spacing8),
+                    constraints: const BoxConstraints(),
+                  ),
                 ),
-              ),
-            ),
+              );
+            }),
           ),
           extendBodyBehindAppBar: true,
 
@@ -238,79 +242,81 @@ class _LevelMapScreenState extends State<LevelMapScreen>
 
               // 📱 KONTEN UTAMA
               SafeArea(
-                child: Column(
-                  children: [
-                    const Spacer(flex: 2),
-
-                    // 🏷️ JUDUL (EFEK TRANSPARAN / WATERMARK)
-                    Column(
+                child: Builder(
+                  builder: (context) {
+                    final responsive = context.responsive;
+                    return ListView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: EdgeInsets.symmetric(horizontal: responsive.spacing20, vertical: responsive.spacing24),
                       children: [
+                        SizedBox(height: responsive.spacing40),
+                        // 🏷️ JUDUL (EFEK TRANSPARAN / WATERMARK)
                         Text(
                           '${s('chapter')} ${widget.chapter}',
-                          style: TextStyle(
-                            fontSize: 26,
-                            fontStyle: FontStyle.italic,
+                          textAlign: TextAlign.center,
+                          style: responsive.getTextStyle(
+                            size: TextSize.heading,
                             color: Colors.brown.withOpacity(0.0),
                           ),
                         ),
-                        const SizedBox(height: 5),
+                        SizedBox(height: responsive.spacing5),
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 5,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: responsive.spacing20,
+                            vertical: responsive.spacing5,
                           ),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(responsive.radiusLarge),
                             color: Colors.white.withOpacity(0.0),
                           ),
                           child: Text(
                             s('adventure'),
-                            style: TextStyle(
-                              fontSize: 54,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 2,
+                            textAlign: TextAlign.center,
+                            style: responsive.getTextStyle(
+                              size: TextSize.xLarge,
                               color: Colors.brown.withOpacity(0.0),
+                              weight: FontWeight.w900,
+                              letterSpacing: 2,
                             ),
                           ),
                         ),
+
+                        SizedBox(height: responsive.spacing40),
+
+                        // 🔘 TOMBOL LEVEL (BULAT + TEKS DI BAWAH)
+                        Center(
+                          child: _springLevelButton(
+                            s('level_1'),
+                            Icons.menu_book,
+                            Colors.blue.shade700,
+                            _level1Controller,
+                            1,
+                          ),
+                        ),
+                        SizedBox(height: responsive.spacing24),
+                        Center(
+                          child: _springLevelButton(
+                            s('level_2'),
+                            Icons.edit,
+                            Colors.green.shade700,
+                            _level2Controller,
+                            2,
+                          ),
+                        ),
+                        SizedBox(height: responsive.spacing24),
+                        Center(
+                          child: _springLevelButton(
+                            s('level_3'),
+                            Icons.mic,
+                            Colors.orange.shade700,
+                            _level3Controller,
+                            3,
+                          ),
+                        ),
+                        SizedBox(height: responsive.spacing40),
                       ],
-                    ),
-
-                    const Spacer(flex: 1),
-
-                    // 🔘 TOMBOL LEVEL (BULAT + TEKS DI BAWAH)
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _springLevelButton(
-                          s('level_1'),
-                          Icons.menu_book,
-                          Colors.blue.shade700,
-                          _level1Controller,
-                          1,
-                        ),
-                        const SizedBox(height: 25),
-                        _springLevelButton(
-                          s('level_2'),
-                          Icons.edit,
-                          Colors.green.shade700,
-                          _level2Controller,
-                          2,
-                        ),
-                        const SizedBox(height: 25),
-                        _springLevelButton(
-                          s('level_3'),
-                          Icons.mic,
-                          Colors.orange.shade700,
-                          _level3Controller,
-                          3,
-                        ),
-                        const SizedBox(height: 40),
-                      ],
-                    ),
-
-                    const Spacer(flex: 1),
-                  ],
+                    );
+                  },
                 ),
               ),
             ],
@@ -330,71 +336,75 @@ class _LevelMapScreenState extends State<LevelMapScreen>
   ) {
     final isLocked = levelNumber > _unlockedLevel;
 
-    return GestureDetector(
-      onTapDown: isLocked
-          ? null
-          : (_) => _onLevelPressed(text, controller, levelNumber),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AnimatedBuilder(
-            animation: controller,
-            builder: (context, child) => Transform.scale(
-              scale: isLocked ? 0.95 : 0.95 + (controller.value * 0.15),
-              child: child,
-            ),
-            child: Container(
-              width: 70,
-              height: 70,
-              decoration: BoxDecoration(
-                color: isLocked ? Colors.grey.shade400 : color,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.white.withOpacity(0.5),
-                  width: 3,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(isLocked ? 0.1 : 0.25),
-                    blurRadius: 12,
-                    offset: const Offset(0, 6),
+    return Builder(builder: (context) {
+      final responsive = context.responsive;
+      return GestureDetector(
+        onTapDown: isLocked
+            ? null
+            : (_) => _onLevelPressed(text, controller, levelNumber),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedBuilder(
+              animation: controller,
+              builder: (context, child) => Transform.scale(
+                scale: isLocked ? 0.95 : 0.95 + (controller.value * 0.15),
+                child: child,
+              ),
+              child: Container(
+                width: responsive.spacing32 * 2.2,
+                height: responsive.spacing32 * 2.2,
+                decoration: BoxDecoration(
+                  color: isLocked ? Colors.grey.shade400 : color,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.5),
+                    width: 3,
                   ),
-                ],
-              ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: <Widget>[
-                  Icon(icon, color: Colors.white, size: 30),
-                  if (isLocked)
-                    Container(
-                      width: 70,
-                      height: 70,
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.25),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.lock_outline,
-                        color: Colors.white,
-                        size: 24,
-                      ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(isLocked ? 0.1 : 0.25),
+                      blurRadius: 12,
+                      offset: Offset(0, responsive.spacing8),
                     ),
-                ],
+                  ],
+                ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: <Widget>[
+                    Icon(icon, color: Colors.white, size: responsive.iconSizeLarge),
+                    if (isLocked)
+                      Container(
+                        width: responsive.spacing32 * 2.2,
+                        height: responsive.spacing32 * 2.2,
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.25),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.lock_outline,
+                          color: Colors.white,
+                          size: responsive.iconSizeMedium,
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            text,
-            style: TextStyle(
-              color: isLocked ? Colors.grey.shade600 : Colors.brown,
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
+            SizedBox(height: responsive.spacing8),
+            Text(
+              text,
+              style: responsive.getTextStyle(
+                size: TextSize.body,
+                color: isLocked ? Colors.grey.shade600 : Colors.brown,
+                weight: FontWeight.bold,
+              ),
             ),
-          ),
-          if (isLocked) const Text('🔒', style: TextStyle(fontSize: 10)),
-        ],
-      ),
-    );
+            if (isLocked) 
+              Text('🔒', style: TextStyle(fontSize: responsive.fontSizeSmall)),
+          ],
+        ),
+      );
+    });
   }
 }

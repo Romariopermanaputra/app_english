@@ -3,6 +3,7 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:speech_to_text/speech_recognition_result.dart';
 import '../data/question_data.dart';
 import '../utils/progress_manager.dart'; // ✅ Import ProgressManager
+import '../utils/responsive_helper.dart';
 
 class SpeakingScreen extends StatefulWidget {
   final int chapter;
