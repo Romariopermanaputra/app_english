@@ -13,6 +13,8 @@ class AppStrings {
 
       // Level Map Screen
       'choose_level': 'Pilih',
+      'choose_level_title': 'Pilih Level',
+      'level_subtitle': 'Pilih level setelah memilih chapter',
       'adventure':    'PETUALANGAN',
       'choose_class': 'Pilih Kelas',
       'class_subtitle': 'Pilih kelas sebelum memilih bab',
@@ -113,6 +115,8 @@ class AppStrings {
 
       // Level Map Screen
       'choose_level': 'Choose Your',
+      'choose_level_title': 'Choose Level',
+      'level_subtitle': 'Pick a level after choosing a chapter',
       'adventure':    'ADVENTURE',
       'choose_class': 'Choose Class',
       'class_subtitle': 'Pick a class before selecting chapters',

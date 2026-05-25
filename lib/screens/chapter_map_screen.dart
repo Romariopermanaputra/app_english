@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../screens/level_map_screen.dart';
 import '../utils/app_language.dart';
 import '../utils/app_strings.dart';
+import '../utils/progress_manager.dart';
 import '../utils/responsive_helper.dart';
 
 class ChapterMapScreen extends StatefulWidget {
@@ -18,6 +19,7 @@ class _ChapterMapScreenState extends State<ChapterMapScreen>
   late AnimationController _chapter1Controller;
   late AnimationController _chapter2Controller;
   late AnimationController _chapter3Controller;
+  int _currentUnlockedChapter = 1;
 
   @override
   void initState() {
@@ -26,6 +28,7 @@ class _ChapterMapScreenState extends State<ChapterMapScreen>
     _chapter1Controller = AnimationController(vsync: this, duration: duration);
     _chapter2Controller = AnimationController(vsync: this, duration: duration);
     _chapter3Controller = AnimationController(vsync: this, duration: duration);
+    _loadProgress();
   }
 
   @override
@@ -36,10 +39,44 @@ class _ChapterMapScreenState extends State<ChapterMapScreen>
     super.dispose();
   }
 
+  Future<void> _loadProgress() async {
+    try {
+      final level = await ProgressManager.getCurrentUnlockedLevel();
+      final chapter = _calculateUnlockedChapter(level);
+      if (mounted) {
+        setState(() {
+          _currentUnlockedChapter = chapter;
+        });
+      }
+    } catch (e) {
+      print('❌ [ChapterMap] Error loading progress: $e');
+    }
+  }
+
+  int _calculateUnlockedChapter(int level) {
+    final chapter = ((level - 1) ~/ 3) + 1;
+    return chapter.clamp(1, 3);
+  }
+
   void _onChapterPressed(
     int chapterNumber,
     AnimationController controller,
   ) {
+    final isLocked = chapterNumber > _currentUnlockedChapter;
+    if (isLocked) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '🔒 Selesaikan Chapter ${chapterNumber - 1} terlebih dahulu untuk membuka Chapter $chapterNumber.',
+          ),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.orange.shade700,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
     controller.forward().then((_) {
       Future.delayed(const Duration(milliseconds: 150), () {
         controller.reverse();
@@ -56,7 +93,9 @@ class _ChapterMapScreenState extends State<ChapterMapScreen>
             classNumber: widget.classNumber,
           ),
         ),
-      );
+      ).then((_) {
+        _loadProgress();
+      });
     });
   }
 
@@ -184,46 +223,72 @@ class _ChapterMapScreenState extends State<ChapterMapScreen>
     int chapterNumber,
     ResponsiveHelper responsive,
   ) {
+    final isLocked = chapterNumber > _currentUnlockedChapter;
     return GestureDetector(
-      onTapDown: (_) => _onChapterPressed(chapterNumber, controller),
+      onTapDown: isLocked ? null : (_) => _onChapterPressed(chapterNumber, controller),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           AnimatedBuilder(
             animation: controller,
             builder: (context, child) => Transform.scale(
-              scale: 0.95 + (controller.value * 0.15),
+              scale: isLocked ? 0.95 : 0.95 + (controller.value * 0.15),
               child: child,
             ),
-            child: Container(
-              width: responsive.spacing32 * 2.2,
-              height: responsive.spacing32 * 2.2,
-              decoration: BoxDecoration(
-                color: color,
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white.withOpacity(0.5), width: 3),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.25),
-                    blurRadius: 12,
-                    offset: Offset(0, responsive.spacing8),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  width: responsive.spacing32 * 2.2,
+                  height: responsive.spacing32 * 2.2,
+                  decoration: BoxDecoration(
+                    color: isLocked ? Colors.grey.shade400 : color,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white.withOpacity(0.5), width: 3),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(isLocked ? 0.1 : 0.25),
+                        blurRadius: 12,
+                        offset: Offset(0, responsive.spacing8),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: Center(
-                child: Icon(icon, color: Colors.white, size: responsive.iconSizeLarge),
-              ),
+                ),
+                Icon(icon, color: Colors.white, size: responsive.iconSizeLarge),
+                if (isLocked)
+                  Container(
+                    width: responsive.spacing32 * 2.2,
+                    height: responsive.spacing32 * 2.2,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.22),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.lock_outline,
+                      color: Colors.white,
+                      size: responsive.iconSizeMedium,
+                    ),
+                  ),
+              ],
             ),
           ),
           SizedBox(height: responsive.spacing12),
           Text(
             text,
             style: TextStyle(
-              color: Colors.brown,
+              color: isLocked ? Colors.grey.shade600 : Colors.brown,
               fontSize: responsive.fontSizeBody,
               fontWeight: FontWeight.bold,
             ),
           ),
+          if (isLocked)
+            Padding(
+              padding: EdgeInsets.only(top: responsive.spacing8),
+              child: Text(
+                '🔒',
+                style: TextStyle(fontSize: responsive.fontSizeSmall),
+              ),
+            ),
         ],
       ),
     );

@@ -250,38 +250,35 @@ class _LevelMapScreenState extends State<LevelMapScreen>
                       padding: EdgeInsets.symmetric(horizontal: responsive.spacing20, vertical: responsive.spacing24),
                       children: [
                         SizedBox(height: responsive.spacing40),
-                        // 🏷️ JUDUL (EFEK TRANSPARAN / WATERMARK)
+                        Text(
+                          s('choose_level_title'),
+                          textAlign: TextAlign.center,
+                          style: responsive.getTextStyle(
+                            size: TextSize.heading,
+                            color: Colors.brown,
+                            weight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: responsive.spacing8),
+                        Text(
+                          s('level_subtitle'),
+                          textAlign: TextAlign.center,
+                          style: responsive.getTextStyle(
+                            size: TextSize.body,
+                            color: Colors.brown.withOpacity(0.8),
+                          ),
+                        ),
+                        SizedBox(height: responsive.spacing8),
                         Text(
                           '${s('chapter')} ${widget.chapter}',
                           textAlign: TextAlign.center,
                           style: responsive.getTextStyle(
-                            size: TextSize.heading,
-                            color: Colors.brown.withOpacity(0.0),
+                            size: TextSize.bodyLarge,
+                            color: Colors.brown.withOpacity(0.9),
+                            weight: FontWeight.w600,
                           ),
                         ),
-                        SizedBox(height: responsive.spacing5),
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: responsive.spacing20,
-                            vertical: responsive.spacing5,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(responsive.radiusLarge),
-                            color: Colors.white.withOpacity(0.0),
-                          ),
-                          child: Text(
-                            s('adventure'),
-                            textAlign: TextAlign.center,
-                            style: responsive.getTextStyle(
-                              size: TextSize.xLarge,
-                              color: Colors.brown.withOpacity(0.0),
-                              weight: FontWeight.w900,
-                              letterSpacing: 2,
-                            ),
-                          ),
-                        ),
-
-                        SizedBox(height: responsive.spacing40),
+                        SizedBox(height: responsive.spacing32),
 
                         // 🔘 TOMBOL LEVEL (BULAT + TEKS DI BAWAH)
                         Center(
