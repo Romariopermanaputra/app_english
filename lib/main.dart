@@ -8,6 +8,7 @@ import 'screens/settings_screen.dart';
 import 'screens/login_screen.dart';
 import 'utils/app_language.dart';
 import 'utils/auth_service.dart';
+import 'utils/audio_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,13 +17,21 @@ void main() async {
   try {
     await Supabase.initialize(
       url: 'https://haopwrqixplkiulvyqfa.supabase.co',
-      anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhhb3B3cnFpeHBsa2l1bHZ5cWZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxMjM4NzYsImV4cCI6MjA5NDY5OTg3Nn0.99CNkgE-B0aDV_DXw58IE0iJQk8fUaILx_hwXoYHa-I',
+      anonKey:
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhhb3B3cnFpeHBsa2l1bHZ5cWZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxMjM4NzYsImV4cCI6MjA5NDY5OTg3Nn0.99CNkgE-B0aDV_DXw58IE0iJQk8fUaILx_hwXoYHa-I',
     );
   } catch (e) {
     debugPrint('⚠️ Supabase init error: $e');
   }
 
   await AppLanguage().loadLanguage();
+
+  // Inisialisasi AudioManager untuk backsound (assets/audio/)
+  try {
+    await AudioManager().init();
+  } catch (e) {
+    debugPrint('⚠️ AudioManager init error: $e');
+  }
 
   runApp(const EngLearnApp());
 }
@@ -45,12 +54,12 @@ class EngLearnApp extends StatelessWidget {
           ),
           home: const _AuthGate(),
           routes: {
-            '/home':        (context) => const HomeScreen(),
-            '/class-map':   (context) => const ClassMapScreen(),
+            '/home': (context) => const HomeScreen(),
+            '/class-map': (context) => const ClassMapScreen(),
             '/chapter-map': (context) => const ChapterMapScreen(),
-            '/level-map':   (context) => const LevelMapScreen(),
-            '/settings':    (context) => const SettingsScreen(),
-            '/login':       (context) => const LoginScreen(),
+            '/level-map': (context) => const LevelMapScreen(),
+            '/settings': (context) => const SettingsScreen(),
+            '/login': (context) => const LoginScreen(),
           },
         );
       },
@@ -70,9 +79,7 @@ class _AuthGate extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             backgroundColor: Color(0xFF1B5E20),
-            body: Center(
-              child: CircularProgressIndicator(color: Colors.white),
-            ),
+            body: Center(child: CircularProgressIndicator(color: Colors.white)),
           );
         }
 

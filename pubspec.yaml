@@ -54,4 +54,5 @@ flutter:
   # 🖼️ Assets
   assets:
     - assets/images/ENGLearn.png
+    - assets/audio/
     # - assets/images/level_map_screen.png  # belum ada

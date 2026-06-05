@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../utils/app_language.dart';
 import '../utils/app_strings.dart';
+import '../utils/audio_manager.dart';
 import '../utils/responsive_helper.dart';
 import 'leaderboard_screen.dart';
 
@@ -22,10 +23,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     const duration = Duration(milliseconds: 300);
-    _startController    = AnimationController(vsync: this, duration: duration);
-    _rankController     = AnimationController(vsync: this, duration: duration);
+    _startController = AnimationController(vsync: this, duration: duration);
+    _rankController = AnimationController(vsync: this, duration: duration);
     _settingsController = AnimationController(vsync: this, duration: duration);
-    _exitController     = AnimationController(vsync: this, duration: duration);
+    _exitController = AnimationController(vsync: this, duration: duration);
+    _playIntroAudio();
+  }
+
+  Future<void> _playIntroAudio() async {
+    try {
+      await AudioManager().playAsset('backsound.mp3', volume: 0.4);
+    } catch (e) {
+      debugPrint('⚠️ Gagal memutar backsound: $e');
+    }
   }
 
   @override
@@ -128,7 +138,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 child: Image.asset(
                   'assets/images/ENGLearn.png',
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(color: const Color(0xFFFDF5E6)),
+                  errorBuilder: (_, __, ___) =>
+                      Container(color: const Color(0xFFFDF5E6)),
                 ),
               ),
 
@@ -136,7 +147,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               SafeArea(
                 child: ListView(
                   physics: const BouncingScrollPhysics(),
-                  padding: EdgeInsets.symmetric(horizontal: responsive.spacing20, vertical: responsive.spacing24),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: responsive.spacing20,
+                    vertical: responsive.spacing24,
+                  ),
                   children: [
                     SizedBox(height: responsive.spacing40),
                     Text(
@@ -155,7 +169,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         vertical: responsive.spacing5,
                       ),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(responsive.radiusLarge),
+                        borderRadius: BorderRadius.circular(
+                          responsive.radiusLarge,
+                        ),
                         color: Colors.white.withOpacity(0.4),
                       ),
                       child: Text(
@@ -170,13 +186,45 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       ),
                     ),
                     SizedBox(height: responsive.spacing40),
-                    Center(child: _springButton(s('start_game'), Icons.play_arrow,   Colors.green.shade700, _startController,    'start_game')),
+                    Center(
+                      child: _springButton(
+                        s('start_game'),
+                        Icons.play_arrow,
+                        Colors.green.shade700,
+                        _startController,
+                        'start_game',
+                      ),
+                    ),
                     SizedBox(height: responsive.spacing15),
-                    Center(child: _springButton(s('leaderboard'), Icons.leaderboard, Colors.blue.shade700,  _rankController,     'leaderboard')),
+                    Center(
+                      child: _springButton(
+                        s('leaderboard'),
+                        Icons.leaderboard,
+                        Colors.blue.shade700,
+                        _rankController,
+                        'leaderboard',
+                      ),
+                    ),
                     SizedBox(height: responsive.spacing15),
-                    Center(child: _springButton(s('settings'),    Icons.settings,    Colors.grey.shade700,  _settingsController, 'settings')),
+                    Center(
+                      child: _springButton(
+                        s('settings'),
+                        Icons.settings,
+                        Colors.grey.shade700,
+                        _settingsController,
+                        'settings',
+                      ),
+                    ),
                     SizedBox(height: responsive.spacing15),
-                    Center(child: _springButton(s('exit'),        Icons.exit_to_app, Colors.red.shade700,   _exitController,     'exit')),
+                    Center(
+                      child: _springButton(
+                        s('exit'),
+                        Icons.exit_to_app,
+                        Colors.red.shade700,
+                        _exitController,
+                        'exit',
+                      ),
+                    ),
                     SizedBox(height: responsive.spacing40),
                   ],
                 ),
@@ -203,40 +251,49 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           scale: 0.95 + (controller.value * 0.15),
           child: child,
         ),
-        child: Builder(builder: (context) {
-          final responsive = context.responsive;
-          return Container(
-            width: responsive.buttonWidthMedium,
-            height: responsive.buttonHeight,
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(responsive.radiusXLarge),
-              border: Border.all(color: Colors.white.withOpacity(0.5), width: 3),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.25),
-                  blurRadius: 12,
-                  offset: Offset(0, responsive.spacing8),
+        child: Builder(
+          builder: (context) {
+            final responsive = context.responsive;
+            return Container(
+              width: responsive.buttonWidthMedium,
+              height: responsive.buttonHeight,
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(responsive.radiusXLarge),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.5),
+                  width: 3,
                 ),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, color: Colors.white, size: responsive.iconSizeMedium),
-                SizedBox(width: responsive.spacing12),
-                Text(
-                  text,
-                  style: context.responsive.getTextStyle(
-                    size: TextSize.bodyLarge,
-                    color: Colors.white,
-                    weight: FontWeight.bold,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.25),
+                    blurRadius: 12,
+                    offset: Offset(0, responsive.spacing8),
                   ),
-                ),
-              ],
-            ),
-          );
-        }),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    icon,
+                    color: Colors.white,
+                    size: responsive.iconSizeMedium,
+                  ),
+                  SizedBox(width: responsive.spacing12),
+                  Text(
+                    text,
+                    style: context.responsive.getTextStyle(
+                      size: TextSize.bodyLarge,
+                      color: Colors.white,
+                      weight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }
