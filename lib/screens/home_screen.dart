@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../utils/audio_manager.dart';
 import '../utils/app_language.dart';
 import '../utils/app_strings.dart';
 import '../utils/responsive_helper.dart';
@@ -26,15 +27,22 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _rankController     = AnimationController(vsync: this, duration: duration);
     _settingsController = AnimationController(vsync: this, duration: duration);
     _exitController     = AnimationController(vsync: this, duration: duration);
+    _initAudio();
   }
 
   @override
   void dispose() {
+    AudioManager.instance.stopBackgroundMusic();
     _startController.dispose();
     _rankController.dispose();
     _settingsController.dispose();
     _exitController.dispose();
     super.dispose();
+  }
+
+  Future<void> _initAudio() async {
+    await AudioManager.instance.init();
+    await AudioManager.instance.playBackgroundMusic();
   }
 
   void _onButtonPressed(String key, AnimationController controller) {
@@ -45,6 +53,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         }
       });
     });
+
+    AudioManager.instance.playClickSound();
 
     if (key == 'start_game') {
       Navigator.pushNamed(context, '/class-map');

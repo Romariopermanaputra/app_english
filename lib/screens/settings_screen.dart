@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../utils/audio_manager.dart';
 import '../utils/app_language.dart';
 import '../utils/app_strings.dart';
 import '../utils/auth_service.dart';
@@ -44,13 +45,14 @@ class _SettingsScreenState extends State<SettingsScreen>
   }
 
   Future<void> _loadSettings() async {
+    await AudioManager.instance.loadSettings();
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _musicEnabled       = prefs.getBool('music_enabled') ?? true;
-      _soundEffectEnabled = prefs.getBool('sfx_enabled') ?? true;
+      _musicEnabled        = AudioManager.instance.musicEnabled;
+      _soundEffectEnabled  = AudioManager.instance.sfxEnabled;
       _notificationEnabled = prefs.getBool('notif_enabled') ?? true;
-      _musicVolume        = prefs.getDouble('music_volume') ?? 0.7;
-      _sfxVolume          = prefs.getDouble('sfx_volume') ?? 0.8;
+      _musicVolume         = AudioManager.instance.musicVolume;
+      _sfxVolume           = AudioManager.instance.sfxVolume;
     });
   }
 
@@ -74,6 +76,10 @@ class _SettingsScreenState extends State<SettingsScreen>
       _musicVolume         = 0.7;
       _sfxVolume           = 0.8;
     });
+    await AudioManager.instance.setMusicEnabled(true);
+    await AudioManager.instance.setSfxEnabled(true);
+    await AudioManager.instance.setMusicVolume(0.7);
+    await AudioManager.instance.setSfxVolume(0.8);
     // Reset bahasa ke default (id)
     await AppLanguage().setLanguage('id');
 
@@ -188,8 +194,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                               value:    _musicEnabled,
                               onChanged: (val) {
                                 setState(() => _musicEnabled = val);
-                                _saveBool('music_enabled', val);
-                              },
+                                _saveBool('music_enabled', val);                                  AudioManager.instance.setMusicEnabled(val);                              },
                             ),
                             if (_musicEnabled) ...[
                               const Divider(height: 1),
@@ -200,8 +205,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                                 value:    _musicVolume,
                                 onChanged: (val) {
                                   setState(() => _musicVolume = val);
-                                  _saveDouble('music_volume', val);
-                                },
+                                  _saveDouble('music_volume', val);                                    AudioManager.instance.setMusicVolume(val);                                },
                               ),
                             ],
                           ],
@@ -222,6 +226,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                               onChanged: (val) {
                                 setState(() => _soundEffectEnabled = val);
                                 _saveBool('sfx_enabled', val);
+                                AudioManager.instance.setSfxEnabled(val);
                               },
                             ),
                             if (_soundEffectEnabled) ...[
@@ -233,8 +238,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                                 value:    _sfxVolume,
                                 onChanged: (val) {
                                   setState(() => _sfxVolume = val);
-                                  _saveDouble('sfx_volume', val);
-                                },
+                                  _saveDouble('sfx_volume', val);                                    AudioManager.instance.setSfxVolume(val);                                },
                               ),
                             ],
                           ],

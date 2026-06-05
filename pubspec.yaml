@@ -54,4 +54,9 @@ flutter:
   # 🖼️ Assets
   assets:
     - assets/images/ENGLearn.png
-    # - assets/images/level_map_screen.png  # belum ada
+    - assets/audio/
+    # Contoh file audio yang bisa ditaruh di assets/audio/:
+    #   - assets/audio/bg_music.mp3
+    #   - assets/audio/click.mp3
+    #   - assets/audio/correct.mp3
+    #   - assets/audio/wrong.mp3
