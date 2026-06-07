@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../utils/responsive_helper.dart';
+import '../utils/audio_manager.dart';
 
 // widgets
 import '../data/question_data.dart';
@@ -46,8 +46,10 @@ class _ReadingScreenState extends State<ReadingScreen> {
     if (a == correctAnswer) {
       feedback = "correct";
       score += 10;
+      AudioManager.instance.playCorrectSound();
     } else {
       feedback = "wrong";
+      AudioManager.instance.playWrongSound();
     }
 
     setState(() {});
@@ -110,55 +112,168 @@ class _ReadingScreenState extends State<ReadingScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Reading Practice"),
-        backgroundColor: const Color(0xFFFFE66D),
-        foregroundColor: Colors.black87,
+        title: const Text(
+          "📖 Reading Quiz",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        ),
+        backgroundColor: const Color(0xFF4A90E2),
+        foregroundColor: Colors.white,
         elevation: 0,
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
+      backgroundColor: const Color(0xFFF0F7FF),
       body: Column(
         children: [
           ProgressBar(
             current: index + 1,
             total: questions.length,
-            color: const Color(0xFFFFE66D),
+            color: const Color(0xFF4A90E2),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF4A90E2), Color(0xFF357ABD)],
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    '📝 ${index + 1}/${questions.length}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFD700),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.orange.withOpacity(0.3),
+                        blurRadius: 8,
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    '⭐ $score',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Passage
                   Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.all(22),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFFFFF9C4), Color(0xFFFFE082)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [Color(0xFFE3F2FD), Color(0xFFBBDEFB)],
                       ),
                       borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: const Color(0xFF64B5F6),
+                        width: 2,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.blue.withOpacity(0.2),
+                          blurRadius: 8,
+                        ),
+                      ],
                     ),
-                    child: Text(
-                      text,
-                      style: const TextStyle(fontSize: 16, height: 1.6),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          '📚 Reading Passage',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Color(0xFF1565C0),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          text,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            height: 1.6,
+                            color: Color(0xFF263238),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
 
                   const SizedBox(height: 24),
 
-                  // Question
                   Container(
-                    width: double.infinity,
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 16,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
                     ),
-                    child: Text(q['q'] ?? "", textAlign: TextAlign.center),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Text(
+                          'Pertanyaan',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          q['q'] ?? "",
+                          textAlign: TextAlign.left,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
 
                   const SizedBox(height: 20),
 
-                  // Options
                   ...options.map(
                     (option) => Padding(
                       padding: const EdgeInsets.only(bottom: 12),
@@ -177,7 +292,25 @@ class _ReadingScreenState extends State<ReadingScreen> {
 
                   if (feedback.isNotEmpty) ...[
                     FeedbackBadge(isCorrect: feedback == "correct"),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
+                    if (feedback == 'wrong')
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade50,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.red.shade100),
+                        ),
+                        child: Text(
+                          'Jawaban yang benar: ${q['a'] ?? ''}',
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    const SizedBox(height: 16),
                     ActionButton(
                       text: index < questions.length - 1
                           ? "Next Question"
@@ -187,8 +320,9 @@ class _ReadingScreenState extends State<ReadingScreen> {
                     ),
                   ],
 
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 24),
                   ScoreDisplay(score: score),
+                  const SizedBox(height: 24),
                 ],
               ),
             ),

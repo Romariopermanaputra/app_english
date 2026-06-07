@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:speech_to_text/speech_recognition_result.dart';
 import '../data/question_data.dart';
+import '../utils/audio_manager.dart';
 import '../utils/progress_manager.dart'; // ✅ Import ProgressManager
 import '../utils/responsive_helper.dart';
+import '../widgets/feedback_badge.dart';
 
 class SpeakingScreen extends StatefulWidget {
   final int chapter;
@@ -208,6 +210,12 @@ class _SpeakingScreenState extends State<SpeakingScreen>
       _feedback = isCorrect ? 'correct' : 'wrong';
       if (isCorrect) _score += 10;
     });
+
+    if (isCorrect) {
+      AudioManager.instance.playCorrectSound();
+    } else {
+      AudioManager.instance.playWrongSound();
+    }
   }
 
   // ─── Next Question ────────────────────────────────────────────────────────
@@ -271,6 +279,7 @@ class _SpeakingScreenState extends State<SpeakingScreen>
           // ✅ TOMBOL "SELESAI" - Simpan progress Level 3
           TextButton(
             onPressed: () async {
+              AudioManager.instance.playClickSound();
               // 🎯 Simpan progress: Level 3 selesai
               await ProgressManager.completeLevel(3);
 
@@ -294,6 +303,7 @@ class _SpeakingScreenState extends State<SpeakingScreen>
               ),
             ),
             onPressed: () {
+              AudioManager.instance.playClickSound();
               Navigator.pop(context); // tutup dialog saja
               setState(() {
                 _index = 0;
@@ -336,21 +346,37 @@ class _SpeakingScreenState extends State<SpeakingScreen>
     return Scaffold(
       backgroundColor: const Color(0xFFFFF8F0),
       appBar: AppBar(
-        backgroundColor: Colors.orange.shade700,
+        backgroundColor: const Color(0xFFFFB84D),
         foregroundColor: Colors.white,
         title: const Text(
-          '🎤 Speaking Practice',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          '🎤 Speaking Quiz',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        ),
+        centerTitle: true,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
         ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
             child: Center(
-              child: Text(
-                'Score: $_score',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Text(
+                  '⭐ $_score',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
@@ -399,21 +425,29 @@ class _SpeakingScreenState extends State<SpeakingScreen>
                   vertical: 36,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color(0xFFFFE4B5), Color(0xFFFFD580)],
+                  ),
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.orange.withOpacity(0.15),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
+                      color: Colors.orange.withOpacity(0.3),
+                      blurRadius: 16,
                     ),
                   ],
+                  border: Border.all(color: const Color(0xFFFFA726), width: 2),
                 ),
                 child: Column(
                   children: [
                     const Text(
-                      'Ucapkan kata berikut:',
-                      style: TextStyle(color: Colors.grey, fontSize: 14),
+                      '🗣️ Say this phrase:',
+                      style: TextStyle(
+                        color: Color(0xFF8B4513),
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 14),
                     Text(
@@ -421,7 +455,7 @@ class _SpeakingScreenState extends State<SpeakingScreen>
                       style: const TextStyle(
                         fontSize: 36,
                         fontWeight: FontWeight.w900,
-                        color: Color(0xFF3D2C1E),
+                        color: Color(0xFF8B4513),
                         letterSpacing: 1,
                       ),
                       textAlign: TextAlign.center,
@@ -434,7 +468,14 @@ class _SpeakingScreenState extends State<SpeakingScreen>
 
               // ── Tombol Mic ────────────────────────────────────────────────
               GestureDetector(
-                onTap: _isListening ? _stopListening : _startListening,
+                onTap: () {
+                  AudioManager.instance.playClickSound();
+                  if (_isListening) {
+                    _stopListening();
+                  } else {
+                    _startListening();
+                  }
+                },
                 child: AnimatedBuilder(
                   animation: _pulseAnimation,
                   builder: (context, child) => Transform.scale(
@@ -445,25 +486,33 @@ class _SpeakingScreenState extends State<SpeakingScreen>
                     width: 90,
                     height: 90,
                     decoration: BoxDecoration(
-                      color: _isListening
-                          ? Colors.red
-                          : _answered
-                          ? Colors.grey.shade400
-                          : Colors.orange.shade700,
+                      gradient: LinearGradient(
+                        colors: _isListening
+                            ? [Colors.red, Colors.red.shade700]
+                            : _answered
+                            ? [Colors.grey.shade400, Colors.grey.shade500]
+                            : [
+                                const Color(0xFFFFB84D),
+                                const Color(0xFFFFA500),
+                              ],
+                      ),
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: (_isListening ? Colors.red : Colors.orange)
-                              .withOpacity(0.4),
-                          blurRadius: _isListening ? 24 : 12,
-                          spreadRadius: _isListening ? 6 : 0,
+                          color:
+                              (_isListening
+                                      ? Colors.red
+                                      : const Color(0xFFFFB84D))
+                                  .withOpacity(0.5),
+                          blurRadius: _isListening ? 24 : 16,
+                          spreadRadius: _isListening ? 8 : 2,
                         ),
                       ],
                     ),
                     child: Icon(
                       _isListening ? Icons.stop : Icons.mic,
                       color: Colors.white,
-                      size: 38,
+                      size: 40,
                     ),
                   ),
                 ),
@@ -540,7 +589,11 @@ class _SpeakingScreenState extends State<SpeakingScreen>
 
               const SizedBox(height: 16),
 
-              // ── Feedback benar / salah ─────────────────────────────────────
+              if (_feedback.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: FeedbackBadge(isCorrect: _feedback == 'correct'),
+                ),
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 400),
                 child: _feedback.isEmpty
@@ -613,7 +666,12 @@ class _SpeakingScreenState extends State<SpeakingScreen>
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _answered ? _next : null,
+                  onPressed: _answered
+                      ? () {
+                          AudioManager.instance.playClickSound();
+                          _next();
+                        }
+                      : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange.shade700,
                     disabledBackgroundColor: Colors.grey.shade300,

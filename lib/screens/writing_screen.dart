@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/responsive_helper.dart';
+import '../utils/audio_manager.dart';
 
 // widgets
 import '../data/question_data.dart';
@@ -43,8 +44,10 @@ class _WritingScreenState extends State<WritingScreen> {
     if (user == answer) {
       feedback = "correct";
       score += 10;
+      AudioManager.instance.playCorrectSound();
     } else {
       feedback = "wrong";
+      AudioManager.instance.playWrongSound();
     }
 
     setState(() {});
@@ -101,49 +104,114 @@ class _WritingScreenState extends State<WritingScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Writing Practice"),
-        backgroundColor: const Color(0xFF4ECDC4),
+        title: const Text(
+          "✏️ Writing Quiz",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        ),
+        backgroundColor: const Color(0xFF50C878),
         foregroundColor: Colors.white,
         elevation: 0,
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
+      backgroundColor: const Color(0xFFF0FFF4),
       body: Column(
         children: [
           ProgressBar(
             current: index + 1,
             total: questions.length,
-            color: const Color(0xFF4ECDC4),
+            color: const Color(0xFF50C878),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF50C878), Color(0xFF2E8B57)],
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    '📝 ${index + 1}/${questions.length}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFD700),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.orange.withOpacity(0.3),
+                        blurRadius: 8,
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    '⭐ $score',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Question Card
                   Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(32),
+                    padding: const EdgeInsets.all(28),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [Color(0xFFC8E6C9), Color(0xFFA5D6A7)],
+                      ),
+                      borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
+                          color: Colors.green.withOpacity(0.3),
+                          blurRadius: 12,
                         ),
                       ],
+                      border: Border.all(
+                        color: const Color(0xFF66BB6A),
+                        width: 2,
+                      ),
                     ),
                     child: Column(
                       children: [
-                        const Icon(
-                          Icons.edit_note,
-                          size: 48,
-                          color: Color(0xFF4ECDC4),
-                        ),
+                        const Text('✏️', style: TextStyle(fontSize: 48)),
                         const SizedBox(height: 16),
                         const Text(
-                          "Write this phrase:",
-                          style: TextStyle(color: Colors.grey, fontSize: 14),
+                          "Type this phrase:",
+                          style: TextStyle(
+                            color: Color(0xFF1B5E20),
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         const SizedBox(height: 12),
                         Text(
@@ -151,7 +219,7 @@ class _WritingScreenState extends State<WritingScreen> {
                           style: const TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF2D3748),
+                            color: Color(0xFF1B5E20),
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -161,11 +229,10 @@ class _WritingScreenState extends State<WritingScreen> {
 
                   const SizedBox(height: 32),
 
-                  // Input
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.05),
@@ -194,7 +261,6 @@ class _WritingScreenState extends State<WritingScreen> {
 
                   const SizedBox(height: 24),
 
-                  // Button Check
                   if (feedback.isEmpty)
                     ActionButton(
                       text: "Check Answer",
@@ -202,10 +268,27 @@ class _WritingScreenState extends State<WritingScreen> {
                       color: const Color(0xFF4ECDC4),
                     ),
 
-                  // Feedback
                   if (feedback.isNotEmpty) ...[
                     FeedbackBadge(isCorrect: feedback == "correct"),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
+                    if (feedback == 'wrong')
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade50,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.red.shade100),
+                        ),
+                        child: Text(
+                          'Jawaban yang benar: ${questions[index]['a'] ?? ''}',
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    const SizedBox(height: 16),
                     ActionButton(
                       text: index < questions.length - 1
                           ? "Next Question"
@@ -217,6 +300,7 @@ class _WritingScreenState extends State<WritingScreen> {
 
                   const SizedBox(height: 24),
                   ScoreDisplay(score: score),
+                  const SizedBox(height: 32),
                 ],
               ),
             ),

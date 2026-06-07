@@ -1,12 +1,16 @@
 class QuestionDataClass4 {
+  // ============================================================================
+  // READING PASSAGES - Chapter materials for students
+  // ============================================================================
   static const Map<int, String> readingPassages = {
     1: "Pipit is a student in Grade 4. Every morning, she gets up at five-thirty. First, she makes her bed. Then, she takes a shower. After that, she has breakfast with her family. At six o'clock, Pipit goes to school. She loves her morning routine!",
-    
     2: "It is lunch time. Bara and his family are having lunch together. They have rice, vegetables, and fried chicken. Bara loves fried chicken! His mother says, 'Eat some fruits too, Bara.' Bara eats sweet mango. After eating, he washes the dishes. Yummy lunch!",
-    
     3: "Pipit has many toys at her house. She has a kite, a robot, a plushie, marbles, and a board game. Bara asks, 'May I borrow your kite?' Pipit says, 'Yes, you may.' Mita asks, 'May I borrow your robot?' Pipit says, 'Sure, here it is.' They share toys and play together happily!",
   };
 
+  // ============================================================================
+  // READING QUESTIONS - Multiple choice questions based on reading passages
+  // ============================================================================
   static const Map<int, List<Map<String, dynamic>>> readingQuestions = {
     1: [
       {
@@ -16,7 +20,12 @@ class QuestionDataClass4 {
       },
       {
         "q": "What does Pipit do first after getting up?",
-        "options": ["Take a shower", "Have breakfast", "Make her bed", "Go to school"],
+        "options": [
+          "Take a shower",
+          "Have breakfast",
+          "Make her bed",
+          "Go to school",
+        ],
         "a": "Make her bed",
       },
       {
@@ -65,7 +74,12 @@ class QuestionDataClass4 {
     3: [
       {
         "q": "Where do Pipit and her friends play?",
-        "options": ["At school", "At the park", "At Pipit's house", "At the library"],
+        "options": [
+          "At school",
+          "At the park",
+          "At Pipit's house",
+          "At the library",
+        ],
         "a": "At Pipit's house",
       },
       {
@@ -91,6 +105,9 @@ class QuestionDataClass4 {
     ],
   };
 
+  // ============================================================================
+  // WRITING QUESTIONS - Sentences for students to complete in writing
+  // ============================================================================
   static const Map<int, List<Map<String, String>>> writingQuestions = {
     1: [
       {"q": "I get up in the morning", "a": "i get up in the morning"},
@@ -100,10 +117,16 @@ class QuestionDataClass4 {
       {"q": "I go to school", "a": "i go to school"},
     ],
     2: [
-      {"q": "I am having porridge for breakfast", "a": "i am having porridge for breakfast"},
+      {
+        "q": "I am having porridge for breakfast",
+        "a": "i am having porridge for breakfast",
+      },
       {"q": "What is for lunch", "a": "what is for lunch"},
       {"q": "Noodles are spicy", "a": "noodles are spicy"},
-      {"q": "I like fish because it is delicious", "a": "i like fish because it is delicious"},
+      {
+        "q": "I like fish because it is delicious",
+        "a": "i like fish because it is delicious",
+      },
       {"q": "The mango is sweet", "a": "the mango is sweet"},
     ],
     3: [
@@ -111,10 +134,16 @@ class QuestionDataClass4 {
       {"q": "Yes you may", "a": "yes you may"},
       {"q": "The robot is blue", "a": "the robot is blue"},
       {"q": "The shape is a square", "a": "the shape is a square"},
-      {"q": "Let us share and play together", "a": "let us share and play together"},
+      {
+        "q": "Let us share and play together",
+        "a": "let us share and play together",
+      },
     ],
   };
 
+  // ============================================================================
+  // SPEAKING QUESTIONS - Dialogue and speaking practice questions
+  // ============================================================================
   static const Map<int, List<Map<String, String>>> speakingQuestions = {
     1: [
       {"q": "What do you do in the morning", "a": "i get up in the morning"},
@@ -124,7 +153,10 @@ class QuestionDataClass4 {
       {"q": "When do you go to school", "a": "i go to school at six o clock"},
     ],
     2: [
-      {"q": "What are you having for lunch", "a": "i am having rice and vegetables"},
+      {
+        "q": "What are you having for lunch",
+        "a": "i am having rice and vegetables",
+      },
       {"q": "Do you like fried chicken", "a": "yes i like fried chicken"},
       {"q": "Is the noodles spicy", "a": "yes noodles are spicy"},
       {"q": "What fruit do you like", "a": "i like sweet mango"},
@@ -139,6 +171,9 @@ class QuestionDataClass4 {
     ],
   };
 
+  // ============================================================================
+  // UTILITY METHODS - Helper functions to retrieve questions
+  // ============================================================================
   static List<Map<String, dynamic>> reading(int chapter) {
     return readingQuestions[chapter] ?? readingQuestions[1]!;
   }

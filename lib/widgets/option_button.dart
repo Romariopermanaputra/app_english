@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/audio_manager.dart';
 
 class OptionButton extends StatelessWidget {
   final String text;
@@ -33,7 +34,12 @@ class OptionButton extends StatelessWidget {
     }
 
     return GestureDetector(
-      onTap: onTap,
+      onTap: onTap == null
+          ? null
+          : () {
+              AudioManager.instance.playClickSound();
+              onTap!();
+            },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
         decoration: BoxDecoration(
@@ -41,12 +47,7 @@ class OptionButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: borderColor),
         ),
-        child: Center(
-          child: Text(
-            text,
-            style: const TextStyle(fontSize: 16),
-          ),
-        ),
+        child: Center(child: Text(text, style: const TextStyle(fontSize: 16))),
       ),
     );
   }

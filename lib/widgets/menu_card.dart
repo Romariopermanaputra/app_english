@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/audio_manager.dart';
 
 class MenuCard extends StatefulWidget {
   final IconData icon;
@@ -46,6 +47,7 @@ class _MenuCardState extends State<MenuCard>
     return GestureDetector(
       onTapDown: (_) => _controller.forward(),
       onTapUp: (_) {
+        AudioManager.instance.playClickSound();
         _controller.reverse();
         widget.onTap();
       },
@@ -62,8 +64,10 @@ class _MenuCardState extends State<MenuCard>
             children: [
               Icon(widget.icon, color: widget.color, size: 36),
               const SizedBox(height: 10),
-              Text(widget.title,
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                widget.title,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
               Text(widget.subtitle, style: const TextStyle(fontSize: 12)),
             ],
           ),
