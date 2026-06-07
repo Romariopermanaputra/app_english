@@ -5,7 +5,6 @@ import '../utils/app_language.dart';
 import '../utils/app_strings.dart';
 import '../utils/auth_service.dart';
 import '../utils/audio_manager.dart';
-import '../utils/responsive_helper.dart';
 import 'login_screen.dart';
 
 class SettingsScreen extends StatefulWidget {

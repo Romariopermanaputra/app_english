@@ -27,12 +27,12 @@ class PracticeResultScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final maxScore = totalQuestions * 10;
     final double percentage = maxScore > 0 ? (score / maxScore) : 0;
-    
+
     String title = "Hebat!";
     String subtitle = "Kamu menyelesaikannya dengan baik!";
     Color accentColor = Colors.green;
     IconData rankIcon = Icons.star_rounded;
-    
+
     if (percentage == 1.0) {
       title = "Sempurna! 🏆";
       subtitle = "Kamu tidak melakukan kesalahan sama sekali!";
@@ -67,33 +67,43 @@ class PracticeResultScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      rankIcon,
-                      size: 140,
-                      color: accentColor,
-                    )
-                    .animate(onPlay: (controller) => controller.repeat(reverse: true))
-                    .scaleXY(begin: 1.0, end: 1.1, duration: 800.ms, curve: Curves.easeInOut)
-                    .shimmer(duration: 2.seconds, color: Colors.white.withOpacity(0.5)),
-                    
+                    Icon(rankIcon, size: 140, color: accentColor)
+                        .animate(
+                          onPlay: (controller) =>
+                              controller.repeat(reverse: true),
+                        )
+                        .scaleXY(
+                          begin: 1.0,
+                          end: 1.1,
+                          duration: 800.ms,
+                          curve: Curves.easeInOut,
+                        )
+                        .shimmer(
+                          duration: 2.seconds,
+                          color: Colors.white.withOpacity(0.5),
+                        ),
+
                     const SizedBox(height: 24),
                     Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: 36,
-                        fontWeight: FontWeight.w900,
-                        color: accentColor,
-                        letterSpacing: 1.5,
-                        shadows: [
-                          Shadow(
-                            color: accentColor.withOpacity(0.3),
-                            offset: const Offset(0, 4),
-                            blurRadius: 8,
+                          title,
+                          style: TextStyle(
+                            fontSize: 36,
+                            fontWeight: FontWeight.w900,
+                            color: accentColor,
+                            letterSpacing: 1.5,
+                            shadows: [
+                              Shadow(
+                                color: accentColor.withOpacity(0.3),
+                                offset: const Offset(0, 4),
+                                blurRadius: 8,
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      textAlign: TextAlign.center,
-                    ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.5, end: 0, curve: Curves.easeOutBack),
+                          textAlign: TextAlign.center,
+                        )
+                        .animate()
+                        .fadeIn(duration: 600.ms)
+                        .slideY(begin: 0.5, end: 0, curve: Curves.easeOutBack),
                     const SizedBox(height: 12),
                     Text(
                       subtitle,
@@ -116,7 +126,10 @@ class PracticeResultScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(32),
-                border: Border.all(color: accentColor.withOpacity(0.5), width: 4),
+                border: Border.all(
+                  color: accentColor.withOpacity(0.5),
+                  width: 4,
+                ),
                 boxShadow: [
                   BoxShadow(
                     color: accentColor.withOpacity(0.15),
@@ -138,17 +151,26 @@ class PracticeResultScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    "$score",
-                    style: TextStyle(
-                      fontSize: 72,
-                      fontWeight: FontWeight.w900,
-                      color: accentColor,
-                      height: 1.0,
-                    ),
-                  ).animate()
-                   .scaleXY(begin: 0.0, end: 1.0, curve: Curves.elasticOut, duration: 1.seconds)
-                   .then(delay: 500.ms)
-                   .shimmer(duration: 1.seconds, color: accentColor.withOpacity(0.5)),
+                        "$score",
+                        style: TextStyle(
+                          fontSize: 72,
+                          fontWeight: FontWeight.w900,
+                          color: accentColor,
+                          height: 1.0,
+                        ),
+                      )
+                      .animate()
+                      .scaleXY(
+                        begin: 0.0,
+                        end: 1.0,
+                        curve: Curves.elasticOut,
+                        duration: 1.seconds,
+                      )
+                      .then(delay: 500.ms)
+                      .shimmer(
+                        duration: 1.seconds,
+                        color: accentColor.withOpacity(0.5),
+                      ),
                   const SizedBox(height: 4),
                   Text(
                     "dari $maxScore poin",
@@ -160,7 +182,12 @@ class PracticeResultScreen extends StatelessWidget {
                   ),
                 ],
               ),
-            ).animate().slideY(begin: 1.0, end: 0, curve: Curves.easeOutCubic, duration: 600.ms),
+            ).animate().slideY(
+              begin: 1.0,
+              end: 0,
+              curve: Curves.easeOutCubic,
+              duration: 600.ms,
+            ),
 
             const SizedBox(height: 32),
 
@@ -181,7 +208,7 @@ class PracticeResultScreen extends StatelessWidget {
                     },
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Ulangi Button
                   Row(
                     children: [
@@ -197,9 +224,20 @@ class PracticeResultScreen extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                 builder: (_) {
-                                  if (levelType == 'reading') return ReadingScreen(classNumber: classNumber, chapter: level);
-                                  if (levelType == 'writing') return WritingScreen(classNumber: classNumber, chapter: level);
-                                  return SpeakingScreen(classNumber: classNumber, chapter: level);
+                                  if (levelType == 'reading')
+                                    return ReadingScreen(
+                                      classNumber: classNumber,
+                                      chapter: level,
+                                    );
+                                  if (levelType == 'writing')
+                                    return WritingScreen(
+                                      classNumber: classNumber,
+                                      chapter: level,
+                                    );
+                                  return SpeakingScreen(
+                                    classNumber: classNumber,
+                                    chapter: level,
+                                  );
                                 },
                               ),
                             );

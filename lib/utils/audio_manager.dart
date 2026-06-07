@@ -22,7 +22,6 @@ class AudioManager with WidgetsBindingObserver {
   double _volume = 0.5;
   bool _sfxEnabled = true;
   double _sfxVolume = 0.8;
-  String? _currentFile;
 
   Future<void> init() async {
     if (_initialized) return;
@@ -30,15 +29,15 @@ class AudioManager with WidgetsBindingObserver {
     _player = AudioPlayer();
     _sfxPlayer = AudioPlayer();
     await _player.setReleaseMode(ReleaseMode.loop);
-    
+
     // Load settings from SharedPreferences
     final prefs = await SharedPreferences.getInstance();
     _muted = !(prefs.getBool('music_enabled') ?? true);
     _volume = prefs.getDouble('music_volume') ?? 0.5;
-    
+
     _sfxEnabled = prefs.getBool('sfx_enabled') ?? true;
     _sfxVolume = prefs.getDouble('sfx_volume') ?? 0.8;
-    
+
     _initialized = true;
   }
 
@@ -46,7 +45,6 @@ class AudioManager with WidgetsBindingObserver {
   Future<void> playAsset(String filename, {double? volume}) async {
     await init();
     if (volume != null) _volume = volume;
-    _currentFile = filename;
     await _player.setSource(AssetSource('audio/$filename'));
     await _player.setVolume(_muted ? 0 : _volume);
     if (!_muted) {
@@ -58,7 +56,7 @@ class AudioManager with WidgetsBindingObserver {
   Future<void> playSfx(String filename, {double? volume}) async {
     await init();
     if (!_sfxEnabled) return;
-    
+
     final vol = volume ?? _sfxVolume;
     if (vol <= 0) return;
 

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../utils/responsive_helper.dart';
 
 // widgets
 import '../data/question_data.dart';
@@ -12,6 +11,7 @@ import '../utils/score_service.dart';
 import '../utils/progress_manager.dart'; // ✅ Import ProgressManager
 import '../utils/audio_manager.dart';
 import '../widgets/kid_friendly_background.dart';
+import '../widgets/feedback_bottom_panel.dart'; // ✅ Import FeedbackBottomPanel
 import 'practice_result_screen.dart';
 
 class ReadingScreen extends StatefulWidget {
@@ -136,20 +136,28 @@ class _ReadingScreenState extends State<ReadingScreen> {
       ),
       body: KidFriendlyBackground(
         baseColor: Colors.amber,
-        child: Column(
+        child: Stack(
           children: [
-            ProgressBar(
-              current: index + 1,
-              total: questions.length,
-              color: const Color(0xFFFFE66D),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  children: [
-                    // Passage
-                    Container(
+            Column(
+              children: [
+                ProgressBar(
+                  current: index + 1,
+                  total: questions.length,
+                  color: const Color(0xFFFFE66D),
+                ),
+                Expanded(
+                  child: Center(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 24, right: 24, top: 24, bottom: 80),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Passage
+                        Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(28),
                       decoration: BoxDecoration(
@@ -224,30 +232,30 @@ class _ReadingScreenState extends State<ReadingScreen> {
 
                   const SizedBox(height: 16),
 
-                  if (feedback.isNotEmpty) ...[
-                    FeedbackBadge(isCorrect: feedback == "correct"),
-                    const SizedBox(height: 20),
-                    ActionButton(
-                      text: feedback == "wrong"
-                          ? "Coba Lagi 🔄"
-                          : (index < questions.length - 1 ? "Next Question" : "See Results"),
-                      onTap: feedback == "wrong" ? retry : next,
-                      color: feedback == "wrong" ? Colors.red : const Color(0xFFFFB300),
-                    ),
-                    if (feedback == "wrong") ...[
-                      const SizedBox(height: 12),
-                      ActionButton(
-                        text: index < questions.length - 1 ? "Lanjut →" : "See Results 🏆",
-                        onTap: next,
-                        color: Colors.grey.shade500,
+                      ScoreDisplay(score: score),
+                            ],
+                          ),
+                        ),
                       ),
-                    ],
-                  ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
 
-                  const SizedBox(height: 16),
-                  ScoreDisplay(score: score),
-                ],
-              ),
+          // ─── Duolingo-style Bottom Feedback Panel ───
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOutCubic,
+            left: 0,
+            right: 0,
+            bottom: feedback.isNotEmpty ? 0 : -350,
+            child: FeedbackBottomPanel(
+              feedback: feedback,
+              isLastQuestion: index == questions.length - 1,
+              correctAnswer: q['a'] ?? "",
+              onNext: next,
+              onRetry: retry,
             ),
           ),
         ],

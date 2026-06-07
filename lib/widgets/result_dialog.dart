@@ -21,10 +21,7 @@ class ResultDialog extends StatelessWidget {
       title: const Text("Result"),
       content: Column(
         mainAxisSize: MainAxisSize.min,
-        children: [
-          Text("Correct: $correct / $total"),
-          Text("Score: $score"),
-        ],
+        children: [Text("Correct: $correct / $total"), Text("Score: $score")],
       ),
       actions: [
         TextButton(

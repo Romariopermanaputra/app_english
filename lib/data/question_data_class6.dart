@@ -1,4 +1,3 @@
-
 class QuestionDataClass6 {
   static const Map<int, String> readingPassages = {
     1: "Pipit and Bara are at the vegetable market. Bara reads his mother's shopping list. They buy lettuce, cabbage, corn, cucumbers, and pumpkins. Pipit likes fresh vegetables because they are healthy. 'What is your favorite vegetable?' asks Pipit. 'I like corn and cabbage,' says Bara. They are happy to buy healthy vegetables for their family.",
@@ -12,22 +11,42 @@ class QuestionDataClass6 {
     1: [
       {
         "q": "Where are Pipit and Bara?",
-        "options": ["At the zoo", "At the vegetable market", "At school", "At the beach"],
+        "options": [
+          "At the zoo",
+          "At the vegetable market",
+          "At school",
+          "At the beach",
+        ],
         "a": "At the vegetable market",
       },
       {
         "q": "What vegetables do they buy?",
-        "options": ["Apples and oranges", "Lettuce and cabbage", "Fish and meat", "Rice and bread"],
+        "options": [
+          "Apples and oranges",
+          "Lettuce and cabbage",
+          "Fish and meat",
+          "Rice and bread",
+        ],
         "a": "Lettuce and cabbage",
       },
       {
         "q": "Why does Pipit like vegetables?",
-        "options": ["They are expensive", "They are sweet", "They are healthy", "They are salty"],
+        "options": [
+          "They are expensive",
+          "They are sweet",
+          "They are healthy",
+          "They are salty",
+        ],
         "a": "They are healthy",
       },
       {
         "q": "What is Bara's favorite vegetable?",
-        "options": ["Corn and cabbage", "Spinach and carrot", "Potato and tomato", "Onion and garlic"],
+        "options": [
+          "Corn and cabbage",
+          "Spinach and carrot",
+          "Potato and tomato",
+          "Onion and garlic",
+        ],
         "a": "Corn and cabbage",
       },
       {
@@ -40,7 +59,12 @@ class QuestionDataClass6 {
     2: [
       {
         "q": "When does Pipit brush her teeth?",
-        "options": ["Every morning and evening", "Only at night", "Only in the morning", "Never"],
+        "options": [
+          "Every morning and evening",
+          "Only at night",
+          "Only in the morning",
+          "Never",
+        ],
         "a": "Every morning and evening",
       },
       {
@@ -60,7 +84,12 @@ class QuestionDataClass6 {
       },
       {
         "q": "Why are hygiene habits important?",
-        "options": ["They keep us healthy", "They make us sleepy", "They are funny", "They are difficult"],
+        "options": [
+          "They keep us healthy",
+          "They make us sleepy",
+          "They are funny",
+          "They are difficult",
+        ],
         "a": "They keep us healthy",
       },
     ],
@@ -68,12 +97,22 @@ class QuestionDataClass6 {
     3: [
       {
         "q": "Where do Pipit and Bara go?",
-        "options": ["To the market", "To the beach", "To the zoo", "To the library"],
+        "options": [
+          "To the market",
+          "To the beach",
+          "To the zoo",
+          "To the library",
+        ],
         "a": "To the zoo",
       },
       {
         "q": "What animals do they see?",
-        "options": ["Cats and dogs", "Elephants and lions", "Fish and chickens", "Snakes and frogs"],
+        "options": [
+          "Cats and dogs",
+          "Elephants and lions",
+          "Fish and chickens",
+          "Snakes and frogs",
+        ],
         "a": "Elephants and lions",
       },
       {
@@ -83,12 +122,22 @@ class QuestionDataClass6 {
       },
       {
         "q": "Why does Bara like elephants?",
-        "options": ["They are small", "They are colorful", "They are big and strong", "They are fast"],
+        "options": [
+          "They are small",
+          "They are colorful",
+          "They are big and strong",
+          "They are fast",
+        ],
         "a": "They are big and strong",
       },
       {
         "q": "How do they feel during the trip?",
-        "options": ["Excited and happy", "Sad and tired", "Hungry and angry", "Scared and quiet"],
+        "options": [
+          "Excited and happy",
+          "Sad and tired",
+          "Hungry and angry",
+          "Scared and quiet",
+        ],
         "a": "Excited and happy",
       },
     ],
@@ -97,55 +146,99 @@ class QuestionDataClass6 {
   static const Map<int, List<Map<String, String>>> writingQuestions = {
     1: [
       {"q": "Saya suka sayuran sehat", "a": "i like healthy vegetables"},
-      {"q": "Jagung adalah sayuran favoritku", "a": "corn is my favorite vegetable"},
+      {
+        "q": "Jagung adalah sayuran favoritku",
+        "a": "corn is my favorite vegetable",
+      },
       {"q": "Kita membeli selada dan kubis", "a": "we buy lettuce and cabbage"},
       {"q": "Sayuran itu segar", "a": "the vegetables are fresh"},
       {"q": "Labu itu besar dan oranye", "a": "pumpkins are big and orange"},
     ],
 
     2: [
-      {"q": "Saya menyikat gigi setiap hari", "a": "i brush my teeth every day"},
-      {"q": "Cuci tanganmu sebelum makan", "a": "wash your hands before eating"},
+      {
+        "q": "Saya menyikat gigi setiap hari",
+        "a": "i brush my teeth every day",
+      },
+      {
+        "q": "Cuci tanganmu sebelum makan",
+        "a": "wash your hands before eating",
+      },
       {"q": "Saya mandi dua kali sehari", "a": "i take a bath twice a day"},
-      {"q": "Kebersihan yang baik membuat kita sehat", "a": "good hygiene keeps us healthy"},
-      {"q": "Bara memotong kukunya setiap minggu", "a": "bara cuts his nails every week"},
+      {
+        "q": "Kebersihan yang baik membuat kita sehat",
+        "a": "good hygiene keeps us healthy",
+      },
+      {
+        "q": "Bara memotong kukunya setiap minggu",
+        "a": "bara cuts his nails every week",
+      },
     ],
 
     3: [
-      {"q": "Kita pergi ke kebun binatang hari ini", "a": "we go to the zoo today"},
+      {
+        "q": "Kita pergi ke kebun binatang hari ini",
+        "a": "we go to the zoo today",
+      },
       {"q": "Jerapah itu sangat tinggi", "a": "the giraffe is very tall"},
       {"q": "Gajah itu besar dan kuat", "a": "elephants are big and strong"},
-      {"q": "Saya suka monyet di kebun binatang", "a": "i like monkeys at the zoo"},
-      {"q": "Perjalanan ke kebun binatang itu menyenangkan", "a": "the zoo trip is exciting"},
+      {
+        "q": "Saya suka monyet di kebun binatang",
+        "a": "i like monkeys at the zoo",
+      },
+      {
+        "q": "Perjalanan ke kebun binatang itu menyenangkan",
+        "a": "the zoo trip is exciting",
+      },
     ],
   };
 
   static const Map<int, List<Map<String, String>>> speakingQuestions = {
     1: [
-      {"q": "What is your favorite vegetable", "a": "my favorite vegetable is corn"},
-      {"q": "Do you like healthy vegetables", "a": "yes i like healthy vegetables"},
+      {
+        "q": "What is your favorite vegetable",
+        "a": "my favorite vegetable is corn",
+      },
+      {
+        "q": "Do you like healthy vegetables",
+        "a": "yes i like healthy vegetables",
+      },
       {"q": "What vegetables do you buy", "a": "i buy lettuce and cabbage"},
       {"q": "Are the vegetables fresh", "a": "yes the vegetables are fresh"},
       {"q": "Do you like corn", "a": "yes i like corn"},
     ],
 
     2: [
-      {"q": "When do you brush your teeth", "a": "i brush my teeth every morning and evening"},
-      {"q": "Do you wash your hands before eating", "a": "yes i wash my hands before eating"},
-      {"q": "How many times do you take a bath", "a": "i take a bath twice a day"},
+      {
+        "q": "When do you brush your teeth",
+        "a": "i brush my teeth every morning and evening",
+      },
+      {
+        "q": "Do you wash your hands before eating",
+        "a": "yes i wash my hands before eating",
+      },
+      {
+        "q": "How many times do you take a bath",
+        "a": "i take a bath twice a day",
+      },
       {"q": "Why is hygiene important", "a": "because it keeps us healthy"},
-      {"q": "Do you cut your nails every week", "a": "yes i cut my nails every week"},
+      {
+        "q": "Do you cut your nails every week",
+        "a": "yes i cut my nails every week",
+      },
     ],
 
     3: [
       {"q": "Where do you go on the trip", "a": "i go to the zoo"},
       {"q": "What animals do you like", "a": "i like elephants and giraffes"},
       {"q": "Is the giraffe tall", "a": "yes the giraffe is very tall"},
-      {"q": "Why do you like elephants", "a": "because they are big and strong"},
+      {
+        "q": "Why do you like elephants",
+        "a": "because they are big and strong",
+      },
       {"q": "Is the zoo trip fun", "a": "yes the zoo trip is very fun"},
     ],
   };
-
 
   static List<Map<String, dynamic>> reading(int chapter) {
     return readingQuestions[chapter] ?? readingQuestions[1]!;

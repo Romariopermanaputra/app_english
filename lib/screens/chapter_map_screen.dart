@@ -43,7 +43,9 @@ class _ChapterMapScreenState extends State<ChapterMapScreen>
 
   Future<void> _loadProgress() async {
     try {
-      final level = await ProgressManager.getCurrentUnlockedLevel(widget.classNumber);
+      final level = await ProgressManager.getCurrentUnlockedLevel(
+        widget.classNumber,
+      );
       final chapter = _calculateUnlockedChapter(level);
       if (mounted) {
         setState(() {
@@ -60,10 +62,7 @@ class _ChapterMapScreenState extends State<ChapterMapScreen>
     return chapter.clamp(1, 3);
   }
 
-  void _onChapterPressed(
-    int chapterNumber,
-    AnimationController controller,
-  ) {
+  void _onChapterPressed(int chapterNumber, AnimationController controller) {
     AudioManager().playSfx('click.wav');
     final isLocked = chapterNumber > _currentUnlockedChapter;
     if (isLocked) {
@@ -114,35 +113,43 @@ class _ChapterMapScreenState extends State<ChapterMapScreen>
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
-            leading: Builder(builder: (context) {
-              final responsive = context.responsive;
-              return Padding(
-                padding: EdgeInsets.all(responsive.spacing12),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(responsive.radiusMedium),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
-                        blurRadius: 6,
-                        offset: Offset(0, responsive.spacing4),
+            leading: Builder(
+              builder: (context) {
+                final responsive = context.responsive;
+                return Padding(
+                  padding: EdgeInsets.all(responsive.spacing12),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(
+                        responsive.radiusMedium,
                       ),
-                    ],
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.15),
+                          blurRadius: 6,
+                          offset: Offset(0, responsive.spacing4),
+                        ),
+                      ],
+                    ),
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.arrow_back_ios,
+                        color: Colors.brown,
+                        size: context.responsive.iconSizeSmall,
+                      ),
+                      onPressed: () {
+                        AudioManager().playSfx('click.wav');
+                        Navigator.pop(context);
+                      },
+                      tooltip: s('btn_back'),
+                      padding: EdgeInsets.all(responsive.spacing8),
+                      constraints: const BoxConstraints(),
+                    ),
                   ),
-                  child: IconButton(
-                    icon: Icon(Icons.arrow_back_ios, color: Colors.brown, size: context.responsive.iconSizeSmall),
-                    onPressed: () {
-                      AudioManager().playSfx('click.wav');
-                      Navigator.pop(context);
-                    },
-                    tooltip: s('btn_back'),
-                    padding: EdgeInsets.all(responsive.spacing8),
-                    constraints: const BoxConstraints(),
-                  ),
-                ),
-              );
-            }),
+                );
+              },
+            ),
           ),
           extendBodyBehindAppBar: true,
           body: Stack(
@@ -151,75 +158,93 @@ class _ChapterMapScreenState extends State<ChapterMapScreen>
                 child: Image.asset(
                   'assets/images/ENGLearn.png',
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
-                    color: const Color(0xFFFDF5E6),
-                  ),
+                  errorBuilder: (_, __, ___) =>
+                      Container(color: const Color(0xFFFDF5E6)),
                 ),
               ),
               SafeArea(
-                child: Builder(builder: (context) {
-                  final responsive = context.responsive;
-                  return ListView(
-                    physics: const BouncingScrollPhysics(),
-                    padding: EdgeInsets.symmetric(horizontal: responsive.spacing20, vertical: responsive.spacing24),
-                    children: [
-                      SizedBox(height: responsive.spacing40),
-                      Text(
-                        s('choose_chapter'),
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.fredoka(
-                          textStyle: responsive.getTextStyle(
-                            size: TextSize.heading,
-                            color: Colors.brown,
-                            weight: FontWeight.w900,
-                          ).copyWith(fontSize: responsive.spacing32 * 1.6),
-                        ),
-                      ).animate().slideY(begin: -0.5, end: 0, curve: Curves.easeOutBack, duration: 600.ms).fadeIn(),
-                      SizedBox(height: responsive.spacing12),
-                      Text(
-                        s('chapter_subtitle'),
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.fredoka(
-                          textStyle: responsive.getTextStyle(
-                            size: TextSize.body,
-                            color: Colors.brown.withOpacity(0.8),
-                          ).copyWith(fontSize: responsive.spacing20),
+                child: Builder(
+                  builder: (context) {
+                    final responsive = context.responsive;
+                    return Center(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: responsive.spacing20,
+                            vertical: responsive.spacing24,
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(height: responsive.spacing40),
+                              Text(
+                                    s('choose_chapter'),
+                                    textAlign: TextAlign.center,
+                                    style: GoogleFonts.fredoka(
+                                      textStyle: responsive
+                                          .getTextStyle(
+                                            size: TextSize.heading,
+                                            color: Colors.brown,
+                                            weight: FontWeight.w900,
+                                          )
+                                          .copyWith(
+                                            fontSize: responsive.spacing32 * 1.6,
+                                          ),
+                                    ),
+                                  )
+                                  .animate()
+                                  .slideY(
+                                    begin: -0.5,
+                                    end: 0,
+                                    curve: Curves.easeOutBack,
+                                    duration: 600.ms,
+                                  )
+                                  .fadeIn(),
+                              SizedBox(height: responsive.spacing12),
+                              Text(
+                                s('chapter_subtitle'),
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.fredoka(
+                                  textStyle: responsive
+                                      .getTextStyle(
+                                        size: TextSize.body,
+                                        color: Colors.brown.withOpacity(0.8),
+                                      )
+                                      .copyWith(fontSize: responsive.spacing20),
+                                ),
+                              ),
+                              SizedBox(height: responsive.spacing40),
+                              SizedBox(
+                                width: responsive.spacing32 * 10, // ~320px to force 3 columns
+                                child: Wrap(
+                                  spacing: responsive.spacing24,
+                                  runSpacing: responsive.spacing32,
+                                  alignment: WrapAlignment.center,
+                                  children: List.generate(9, (index) {
+                                    final chapterNum = index + 1;
+                                    return _springChapterButton(
+                                      '${s('chapter')} $chapterNum',
+                                      Icons.menu_book,
+                                      Colors.blue.shade700,
+                                      _controllers[index],
+                                      chapterNum,
+                                      responsive,
+                                    ).animate().scale(
+                                      delay: Duration(milliseconds: 100 * index),
+                                      curve: Curves.elasticOut,
+                                    );
+                                  }),
+                                ),
+                              ),
+                              SizedBox(height: responsive.spacing40),
+                            ],
+                          ),
                         ),
                       ),
-                      SizedBox(height: responsive.spacing40),
-                      Center(
-                        child: Wrap(
-                          spacing: responsive.spacing24,
-                          runSpacing: responsive.spacing32,
-                          alignment: WrapAlignment.center,
-                          children: List.generate(9, (index) {
-                            final chapterNum = index + 1;
-                            final colors = [
-                              Colors.blue.shade700,
-                              Colors.green.shade700,
-                              Colors.orange.shade700,
-                              Colors.purple.shade700,
-                              Colors.red.shade700,
-                              Colors.teal.shade700,
-                              Colors.indigo.shade700,
-                              Colors.pink.shade700,
-                              Colors.cyan.shade700,
-                            ];
-                            return _springChapterButton(
-                              'Bab $chapterNum',
-                              Icons.menu_book,
-                              colors[index],
-                              _controllers[index],
-                              chapterNum,
-                              responsive,
-                            ).animate().scale(delay: Duration(milliseconds: 100 * index), curve: Curves.elasticOut);
-                          }),
-                        ),
-                      ),
-                      SizedBox(height: responsive.spacing40),
-                    ],
-                  );
-                }),
+                    );
+                  },
+                ),
               ),
             ],
           ),
@@ -238,7 +263,9 @@ class _ChapterMapScreenState extends State<ChapterMapScreen>
   ) {
     final isLocked = chapterNumber > _currentUnlockedChapter;
     return GestureDetector(
-      onTapDown: isLocked ? null : (_) => _onChapterPressed(chapterNumber, controller),
+      onTapDown: isLocked
+          ? null
+          : (_) => _onChapterPressed(chapterNumber, controller),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -257,7 +284,10 @@ class _ChapterMapScreenState extends State<ChapterMapScreen>
                   decoration: BoxDecoration(
                     color: isLocked ? Colors.grey.shade400 : color,
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white.withOpacity(0.5), width: 3),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.5),
+                      width: 3,
+                    ),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(isLocked ? 0.1 : 0.25),

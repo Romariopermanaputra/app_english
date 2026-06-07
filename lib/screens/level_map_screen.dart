@@ -44,7 +44,9 @@ class _LevelMapScreenState extends State<LevelMapScreen>
   Future<void> _loadProgress() async {
     print('🔄 [LevelMap] _loadProgress() called');
     try {
-      final level = await ProgressManager.getCurrentUnlockedLevel(widget.classNumber);
+      final level = await ProgressManager.getCurrentUnlockedLevel(
+        widget.classNumber,
+      );
       print('📦 [LevelMap] Loaded level: $level');
       if (mounted) {
         setState(() {
@@ -122,34 +124,46 @@ class _LevelMapScreenState extends State<LevelMapScreen>
       }
 
       // ✅ Gunakan modulo untuk menentukan tipe level
-      if (levelNumber % 3 == 1) { // 1, 4, 7 -> Reading
+      if (levelNumber % 3 == 1) {
+        // 1, 4, 7 -> Reading
         print('📖 Buka modul Reading (Level $levelNumber)');
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ReadingScreen(chapter: widget.chapter, classNumber: widget.classNumber),
+            builder: (context) => ReadingScreen(
+              chapter: widget.chapter,
+              classNumber: widget.classNumber,
+            ),
           ),
         ).then((_) {
           print('🔙 [LevelMap] Returned from Reading, refreshing progress...');
           _loadProgress();
         });
-      } else if (levelNumber % 3 == 2) { // 2, 5, 8 -> Writing
+      } else if (levelNumber % 3 == 2) {
+        // 2, 5, 8 -> Writing
         print('✍️ Buka modul Writing (Level $levelNumber)');
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => WritingScreen(chapter: widget.chapter, classNumber: widget.classNumber),
+            builder: (context) => WritingScreen(
+              chapter: widget.chapter,
+              classNumber: widget.classNumber,
+            ),
           ),
         ).then((_) {
           print('🔙 [LevelMap] Returned from Writing, refreshing progress...');
           _loadProgress();
         });
-      } else if (levelNumber % 3 == 0) { // 3, 6, 9 -> Speaking
+      } else if (levelNumber % 3 == 0) {
+        // 3, 6, 9 -> Speaking
         print('🎤 Buka modul Speaking (Level $levelNumber)');
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => SpeakingScreen(chapter: widget.chapter, classNumber: widget.classNumber),
+            builder: (context) => SpeakingScreen(
+              chapter: widget.chapter,
+              classNumber: widget.classNumber,
+            ),
           ),
         ).then((_) {
           print('🔙 [LevelMap] Returned from Speaking, refreshing progress...');
@@ -172,39 +186,43 @@ class _LevelMapScreenState extends State<LevelMapScreen>
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
-            leading: Builder(builder: (context) {
-              final responsive = context.responsive;
-              return Padding(
-                padding: EdgeInsets.all(responsive.spacing12),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(responsive.radiusMedium),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
-                        blurRadius: 6,
-                        offset: Offset(0, responsive.spacing4),
+            leading: Builder(
+              builder: (context) {
+                final responsive = context.responsive;
+                return Padding(
+                  padding: EdgeInsets.all(responsive.spacing12),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(
+                        responsive.radiusMedium,
                       ),
-                    ],
-                  ),
-                  child: IconButton(
-                    icon: Icon(
-                      Icons.arrow_back_ios,
-                      color: Colors.brown,
-                      size: responsive.iconSizeSmall,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.15),
+                          blurRadius: 6,
+                          offset: Offset(0, responsive.spacing4),
+                        ),
+                      ],
                     ),
-                    onPressed: () {
-                      AudioManager().playSfx('click.wav');
-                      Navigator.pop(context);
-                    },
-                    tooltip: 'Kembali',
-                    padding: EdgeInsets.all(responsive.spacing8),
-                    constraints: const BoxConstraints(),
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.arrow_back_ios,
+                        color: Colors.brown,
+                        size: responsive.iconSizeSmall,
+                      ),
+                      onPressed: () {
+                        AudioManager().playSfx('click.wav');
+                        Navigator.pop(context);
+                      },
+                      tooltip: 'Kembali',
+                      padding: EdgeInsets.all(responsive.spacing8),
+                      constraints: const BoxConstraints(),
+                    ),
                   ),
-                ),
-              );
-            }),
+                );
+              },
+            ),
           ),
           extendBodyBehindAppBar: true,
 
@@ -250,86 +268,113 @@ class _LevelMapScreenState extends State<LevelMapScreen>
                 child: Builder(
                   builder: (context) {
                     final responsive = context.responsive;
-                    return ListView(
-                      physics: const BouncingScrollPhysics(),
-                      padding: EdgeInsets.symmetric(horizontal: responsive.spacing20, vertical: responsive.spacing24),
-                      children: [
-                        SizedBox(height: responsive.spacing40),
-                        Text(
-                          s('choose_level_title'),
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.fredoka(
-                            textStyle: responsive.getTextStyle(
-                              size: TextSize.heading,
-                              color: Colors.brown,
-                              weight: FontWeight.w900,
-                            ).copyWith(fontSize: responsive.spacing32 * 1.6),
+                    return Center(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: responsive.spacing20,
+                            vertical: responsive.spacing24,
                           ),
-                        ).animate().slideY(begin: -0.5, end: 0, curve: Curves.easeOutBack, duration: 600.ms).fadeIn(),
-                        SizedBox(height: responsive.spacing12),
-                        Text(
-                          s('level_subtitle'),
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.fredoka(
-                            textStyle: responsive.getTextStyle(
-                              size: TextSize.body,
-                              color: Colors.brown.withOpacity(0.8),
-                            ).copyWith(fontSize: responsive.spacing20),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(height: responsive.spacing40),
+                              Text(
+                                    s('choose_level_title'),
+                                    textAlign: TextAlign.center,
+                                    style: GoogleFonts.fredoka(
+                                      textStyle: responsive
+                                          .getTextStyle(
+                                            size: TextSize.heading,
+                                            color: Colors.brown,
+                                            weight: FontWeight.w900,
+                                          )
+                                          .copyWith(
+                                            fontSize: responsive.spacing32 * 1.6,
+                                          ),
+                                    ),
+                                  )
+                                  .animate()
+                                  .slideY(
+                                    begin: -0.5,
+                                    end: 0,
+                                    curve: Curves.easeOutBack,
+                                    duration: 600.ms,
+                                  )
+                                  .fadeIn(),
+                              SizedBox(height: responsive.spacing12),
+                              Text(
+                                s('level_subtitle'),
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.fredoka(
+                                  textStyle: responsive
+                                      .getTextStyle(
+                                        size: TextSize.body,
+                                        color: Colors.brown.withOpacity(0.8),
+                                      )
+                                      .copyWith(fontSize: responsive.spacing20),
+                                ),
+                              ),
+                              SizedBox(height: responsive.spacing8),
+                              Text(
+                                '${s('chapter')} ${widget.chapter}',
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.fredoka(
+                                  textStyle: responsive
+                                      .getTextStyle(
+                                        size: TextSize.bodyLarge,
+                                        color: Colors.brown.withOpacity(0.9),
+                                        weight: FontWeight.w600,
+                                      )
+                                      .copyWith(fontSize: responsive.spacing24),
+                                ),
+                              ),
+                              SizedBox(height: responsive.spacing40),
+                              SizedBox(
+                                width: responsive.spacing32 * 10,
+                                child: Wrap(
+                                  spacing: responsive.spacing24,
+                                  runSpacing: responsive.spacing32,
+                                  alignment: WrapAlignment.center,
+                                  children: List.generate(9, (index) {
+                                    final levelNum = index + 1;
+                                    String label;
+                                    IconData iconData;
+                                    Color color;
+
+                                    if (levelNum % 3 == 1) {
+                                      label = 'Reading ${(levelNum / 3).ceil()}';
+                                      iconData = Icons.menu_book;
+                                      color = Colors.blue.shade700;
+                                    } else if (levelNum % 3 == 2) {
+                                      label = 'Writing ${(levelNum / 3).ceil()}';
+                                      iconData = Icons.edit;
+                                      color = Colors.green.shade700;
+                                    } else {
+                                      label = 'Speaking ${(levelNum / 3).ceil()}';
+                                      iconData = Icons.mic;
+                                      color = Colors.orange.shade700;
+                                    }
+
+                                    return _springLevelButton(
+                                      label,
+                                      iconData,
+                                      color,
+                                      _controllers[index],
+                                      levelNum,
+                                    ).animate().scale(
+                                      delay: Duration(milliseconds: 100 * index),
+                                      curve: Curves.elasticOut,
+                                    );
+                                  }),
+                                ),
+                              ),
+                              SizedBox(height: responsive.spacing40),
+                            ],
                           ),
                         ),
-                        SizedBox(height: responsive.spacing8),
-                        Text(
-                          '${s('chapter')} ${widget.chapter}',
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.fredoka(
-                            textStyle: responsive.getTextStyle(
-                              size: TextSize.bodyLarge,
-                              color: Colors.brown.withOpacity(0.9),
-                              weight: FontWeight.w600,
-                            ).copyWith(fontSize: responsive.spacing24),
-                          ),
-                        ),
-                        SizedBox(height: responsive.spacing40),
-
-                        // 🔘 TOMBOL LEVEL (BULAT + TEKS DI BAWAH)
-                        Center(
-                          child: Wrap(
-                            spacing: responsive.spacing24,
-                            runSpacing: responsive.spacing32,
-                            alignment: WrapAlignment.center,
-                            children: List.generate(9, (index) {
-                              final levelNum = index + 1;
-                              
-                              String label;
-                              IconData iconData;
-                              Color color;
-
-                              if (levelNum % 3 == 1) {
-                                label = 'Reading ${(levelNum / 3).ceil()}';
-                                iconData = Icons.menu_book;
-                                color = Colors.blue.shade700;
-                              } else if (levelNum % 3 == 2) {
-                                label = 'Writing ${(levelNum / 3).ceil()}';
-                                iconData = Icons.edit;
-                                color = Colors.green.shade700;
-                              } else {
-                                label = 'Speaking ${(levelNum / 3).ceil()}';
-                                iconData = Icons.mic;
-                                color = Colors.orange.shade700;
-                              }
-
-                              return _springLevelButton(
-                                label,
-                                iconData,
-                                color,
-                                _controllers[index],
-                                levelNum,
-                              ).animate().scale(delay: Duration(milliseconds: 100 * index), curve: Curves.elasticOut);
-                            }),
-                          ),
-                        ),
-                        SizedBox(height: responsive.spacing40),
-                      ],
+                      ),
                     );
                   },
                 ),
@@ -351,76 +396,86 @@ class _LevelMapScreenState extends State<LevelMapScreen>
   ) {
     final isLocked = levelNumber > _unlockedLevel;
 
-    return Builder(builder: (context) {
-      final responsive = context.responsive;
-      return GestureDetector(
-        onTapDown: isLocked
-            ? null
-            : (_) => _onLevelPressed(text, controller, levelNumber),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AnimatedBuilder(
-              animation: controller,
-              builder: (context, child) => Transform.scale(
-                scale: isLocked ? 0.95 : 0.95 + (controller.value * 0.15),
-                child: child,
-              ),
-              child: Container(
-                width: responsive.spacing32 * 2.2,
-                height: responsive.spacing32 * 2.2,
-                decoration: BoxDecoration(
-                  color: isLocked ? Colors.grey.shade400 : color,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.5),
-                    width: 3,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(isLocked ? 0.1 : 0.25),
-                      blurRadius: 12,
-                      offset: Offset(0, responsive.spacing8),
+    return Builder(
+      builder: (context) {
+        final responsive = context.responsive;
+        return GestureDetector(
+          onTapDown: isLocked
+              ? null
+              : (_) => _onLevelPressed(text, controller, levelNumber),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AnimatedBuilder(
+                animation: controller,
+                builder: (context, child) => Transform.scale(
+                  scale: isLocked ? 0.95 : 0.95 + (controller.value * 0.15),
+                  child: child,
+                ),
+                child: Container(
+                  width: responsive.spacing32 * 2.2,
+                  height: responsive.spacing32 * 2.2,
+                  decoration: BoxDecoration(
+                    color: isLocked ? Colors.grey.shade400 : color,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.5),
+                      width: 3,
                     ),
-                  ],
-                ),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: <Widget>[
-                    Icon(icon, color: Colors.white, size: responsive.iconSizeLarge),
-                    if (isLocked)
-                      Container(
-                        width: responsive.spacing32 * 2.2,
-                        height: responsive.spacing32 * 2.2,
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.25),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.lock_outline,
-                          color: Colors.white,
-                          size: responsive.iconSizeMedium,
-                        ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(isLocked ? 0.1 : 0.25),
+                        blurRadius: 12,
+                        offset: Offset(0, responsive.spacing8),
                       ),
-                  ],
+                    ],
+                  ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: <Widget>[
+                      Icon(
+                        icon,
+                        color: Colors.white,
+                        size: responsive.iconSizeLarge,
+                      ),
+                      if (isLocked)
+                        Container(
+                          width: responsive.spacing32 * 2.2,
+                          height: responsive.spacing32 * 2.2,
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.25),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.lock_outline,
+                            color: Colors.white,
+                            size: responsive.iconSizeMedium,
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            SizedBox(height: responsive.spacing12),
-          Text(
-            text,
-            style: GoogleFonts.fredoka(
-              textStyle: TextStyle(
-                color: isLocked ? Colors.grey.shade600 : Colors.brown,
-                fontSize: responsive.fontSizeBody,
-                fontWeight: FontWeight.bold,
+              SizedBox(height: responsive.spacing12),
+              Text(
+                text,
+                style: GoogleFonts.fredoka(
+                  textStyle: TextStyle(
+                    color: isLocked ? Colors.grey.shade600 : Colors.brown,
+                    fontSize: responsive.fontSizeBody,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-            ),
-          ),  if (isLocked) 
-              Text('🔒', style: TextStyle(fontSize: responsive.fontSizeSmall)),
-          ],
-        ),
-      );
-    });
+              if (isLocked)
+                Text(
+                  '🔒',
+                  style: TextStyle(fontSize: responsive.fontSizeSmall),
+                ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

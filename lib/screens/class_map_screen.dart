@@ -37,10 +37,7 @@ class _ClassMapScreenState extends State<ClassMapScreen>
     super.dispose();
   }
 
-  void _onClassPressed(
-    int classNumber,
-    AnimationController controller,
-  ) {
+  void _onClassPressed(int classNumber, AnimationController controller) {
     AudioManager().playSfx('click.wav');
     controller.forward().then((_) {
       Future.delayed(const Duration(milliseconds: 150), () {
@@ -71,35 +68,43 @@ class _ClassMapScreenState extends State<ClassMapScreen>
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
-            leading: Builder(builder: (context) {
-              final responsive = context.responsive;
-              return Padding(
-                padding: EdgeInsets.all(responsive.spacing12),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(responsive.radiusMedium),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
-                        blurRadius: 6,
-                        offset: Offset(0, responsive.spacing4),
+            leading: Builder(
+              builder: (context) {
+                final responsive = context.responsive;
+                return Padding(
+                  padding: EdgeInsets.all(responsive.spacing12),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(
+                        responsive.radiusMedium,
                       ),
-                    ],
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.15),
+                          blurRadius: 6,
+                          offset: Offset(0, responsive.spacing4),
+                        ),
+                      ],
+                    ),
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.arrow_back_ios,
+                        color: Colors.brown,
+                        size: context.responsive.iconSizeSmall,
+                      ),
+                      onPressed: () {
+                        AudioManager().playSfx('click.wav');
+                        Navigator.pop(context);
+                      },
+                      tooltip: s('btn_back'),
+                      padding: EdgeInsets.all(responsive.spacing8),
+                      constraints: const BoxConstraints(),
+                    ),
                   ),
-                  child: IconButton(
-                    icon: Icon(Icons.arrow_back_ios, color: Colors.brown, size: context.responsive.iconSizeSmall),
-                    onPressed: () {
-                      AudioManager().playSfx('click.wav');
-                      Navigator.pop(context);
-                    },
-                    tooltip: s('btn_back'),
-                    padding: EdgeInsets.all(responsive.spacing8),
-                    constraints: const BoxConstraints(),
-                  ),
-                ),
-              );
-            }),
+                );
+              },
+            ),
           ),
           extendBodyBehindAppBar: true,
           body: Stack(
@@ -108,72 +113,106 @@ class _ClassMapScreenState extends State<ClassMapScreen>
                 child: Image.asset(
                   'assets/images/ENGLearn.png',
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
-                    color: const Color(0xFFFDF5E6),
-                  ),
+                  errorBuilder: (_, __, ___) =>
+                      Container(color: const Color(0xFFFDF5E6)),
                 ),
               ),
               SafeArea(
-                child: Builder(builder: (context) {
-                  final responsive = context.responsive;
-                  return ListView(
-                    physics: const BouncingScrollPhysics(),
-                    padding: EdgeInsets.symmetric(horizontal: responsive.spacing20, vertical: responsive.spacing24),
-                    children: [
-                      SizedBox(height: responsive.spacing40),
-                      Text(
-                        s('choose_class'),
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.fredoka(
-                          textStyle: responsive.getTextStyle(
-                            size: TextSize.heading,
-                            color: Colors.brown,
-                            weight: FontWeight.w900,
-                          ).copyWith(fontSize: responsive.spacing32 * 1.6),
-                        ),
-                      ).animate().slideY(begin: -0.5, end: 0, curve: Curves.easeOutBack, duration: 600.ms).fadeIn(),
-                      SizedBox(height: responsive.spacing12),
-                      Text(
-                        s('class_subtitle'),
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.fredoka(
-                          textStyle: responsive.getTextStyle(
-                            size: TextSize.body,
-                            color: Colors.brown.withOpacity(0.8),
-                          ).copyWith(fontSize: responsive.spacing20),
+                child: Builder(
+                  builder: (context) {
+                    final responsive = context.responsive;
+                    return Center(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: responsive.spacing20,
+                            vertical: responsive.spacing24,
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(height: responsive.spacing40),
+                              Text(
+                                s('choose_class'),
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.fredoka(
+                                  textStyle: responsive
+                                      .getTextStyle(
+                                        size: TextSize.heading,
+                                        color: Colors.brown,
+                                        weight: FontWeight.w900,
+                                      )
+                                      .copyWith(
+                                        fontSize: responsive.spacing32 * 1.6,
+                                      ),
+                                ),
+                              )
+                              .animate()
+                              .slideY(
+                                begin: -0.5,
+                                end: 0,
+                                curve: Curves.easeOutBack,
+                                duration: 600.ms,
+                              )
+                              .fadeIn(),
+                              SizedBox(height: responsive.spacing12),
+                              Text(
+                                s('class_subtitle'),
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.fredoka(
+                                  textStyle: responsive
+                                      .getTextStyle(
+                                        size: TextSize.body,
+                                        color: Colors.brown.withOpacity(0.8),
+                                      )
+                                      .copyWith(fontSize: responsive.spacing20),
+                                ),
+                              ),
+                              SizedBox(height: responsive.spacing40),
+                              _springClassButton(
+                                s('class_4'),
+                                Icons.looks_4,
+                                Colors.purple.shade700,
+                                _class4Controller,
+                                4,
+                                responsive,
+                              ).animate().scale(
+                                delay: 200.ms,
+                                curve: Curves.elasticOut,
+                              ),
+                              SizedBox(height: responsive.spacing24),
+                              _springClassButton(
+                                s('class_5'),
+                                Icons.looks_5,
+                                Colors.indigo.shade700,
+                                _class5Controller,
+                                5,
+                                responsive,
+                              ).animate().scale(
+                                delay: 400.ms,
+                                curve: Curves.elasticOut,
+                              ),
+                              SizedBox(height: responsive.spacing24),
+                              _springClassButton(
+                                s('class_6'),
+                                Icons.looks_6,
+                                Colors.cyan.shade700,
+                                _class6Controller,
+                                6,
+                                responsive,
+                              ).animate().scale(
+                                delay: 600.ms,
+                                curve: Curves.elasticOut,
+                              ),
+                              SizedBox(height: responsive.spacing40),
+                            ],
+                          ),
                         ),
                       ),
-                      SizedBox(height: responsive.spacing40 * 1.5),
-                      Center(child: _springClassButton(
-                        s('class_4'),
-                        Icons.looks_4,
-                        Colors.purple.shade700,
-                        _class4Controller,
-                        4,
-                        responsive,
-                      ).animate().scale(delay: 200.ms, curve: Curves.elasticOut)),
-                      SizedBox(height: responsive.spacing24),
-                      Center(child: _springClassButton(
-                        s('class_5'),
-                        Icons.looks_5,
-                        Colors.indigo.shade700,
-                        _class5Controller,
-                        5,
-                        responsive,
-                      ).animate().scale(delay: 400.ms, curve: Curves.elasticOut)),
-                      SizedBox(height: responsive.spacing24),
-                      Center(child: _springClassButton(
-                        s('class_6'),
-                        Icons.looks_6,
-                        Colors.cyan.shade700,
-                        _class6Controller,
-                        6,
-                        responsive,
-                      ).animate().scale(delay: 600.ms, curve: Curves.elasticOut)),
-                      SizedBox(height: responsive.spacing40),
-                    ],
-                  );
-                }),
+                    );
+                  },
+                ),
               ),
             ],
           ),
@@ -207,7 +246,10 @@ class _ClassMapScreenState extends State<ClassMapScreen>
               decoration: BoxDecoration(
                 color: color,
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.white.withOpacity(0.5), width: 4),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.5),
+                  width: 4,
+                ),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.25),
@@ -217,7 +259,11 @@ class _ClassMapScreenState extends State<ClassMapScreen>
                 ],
               ),
               child: Center(
-                child: Icon(icon, color: Colors.white, size: responsive.iconSizeLarge * 1.5),
+                child: Icon(
+                  icon,
+                  color: Colors.white,
+                  size: responsive.iconSizeLarge * 1.5,
+                ),
               ),
             ),
           ),

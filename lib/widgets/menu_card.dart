@@ -62,8 +62,10 @@ class _MenuCardState extends State<MenuCard>
             children: [
               Icon(widget.icon, color: widget.color, size: 36),
               const SizedBox(height: 10),
-              Text(widget.title,
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                widget.title,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
               Text(widget.subtitle, style: const TextStyle(fontSize: 12)),
             ],
           ),

@@ -59,7 +59,9 @@ class OptionButton extends StatelessWidget {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w800,
-              color: (isSelected || isCorrect || isWrong) ? borderColor : Colors.grey.shade700,
+              color: (isSelected || isCorrect || isWrong)
+                  ? borderColor
+                  : Colors.grey.shade700,
             ),
           ),
         ),

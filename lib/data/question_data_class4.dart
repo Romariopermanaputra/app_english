@@ -1,9 +1,9 @@
 class QuestionDataClass4 {
   static const Map<int, String> readingPassages = {
     1: "Pipit is a student in Grade 4. Every morning, she gets up at five-thirty. First, she makes her bed. Then, she takes a shower. After that, she has breakfast with her family. At six o'clock, Pipit goes to school. She loves her morning routine!",
-    
+
     2: "It is lunch time. Bara and his family are having lunch together. They have rice, vegetables, and fried chicken. Bara loves fried chicken! His mother says, 'Eat some fruits too, Bara.' Bara eats sweet mango. After eating, he washes the dishes. Yummy lunch!",
-    
+
     3: "Pipit has many toys at her house. She has a kite, a robot, a plushie, marbles, and a board game. Bara asks, 'May I borrow your kite?' Pipit says, 'Yes, you may.' Mita asks, 'May I borrow your robot?' Pipit says, 'Sure, here it is.' They share toys and play together happily!",
   };
 
@@ -16,7 +16,12 @@ class QuestionDataClass4 {
       },
       {
         "q": "What does Pipit do first after getting up?",
-        "options": ["Take a shower", "Have breakfast", "Make her bed", "Go to school"],
+        "options": [
+          "Take a shower",
+          "Have breakfast",
+          "Make her bed",
+          "Go to school",
+        ],
         "a": "Make her bed",
       },
       {
@@ -65,7 +70,12 @@ class QuestionDataClass4 {
     3: [
       {
         "q": "Where do Pipit and her friends play?",
-        "options": ["At school", "At the park", "At Pipit's house", "At the library"],
+        "options": [
+          "At school",
+          "At the park",
+          "At Pipit's house",
+          "At the library",
+        ],
         "a": "At Pipit's house",
       },
       {
@@ -100,18 +110,30 @@ class QuestionDataClass4 {
       {"q": "Saya pergi ke sekolah", "a": "i go to school"},
     ],
     2: [
-      {"q": "Saya makan bubur untuk sarapan", "a": "i am having porridge for breakfast"},
+      {
+        "q": "Saya makan bubur untuk sarapan",
+        "a": "i am having porridge for breakfast",
+      },
       {"q": "Apa menu untuk makan siang", "a": "what is for lunch"},
       {"q": "Mie itu pedas", "a": "noodles are spicy"},
-      {"q": "Saya suka ikan karena lezat", "a": "i like fish because it is delicious"},
+      {
+        "q": "Saya suka ikan karena lezat",
+        "a": "i like fish because it is delicious",
+      },
       {"q": "Mangga itu manis", "a": "the mango is sweet"},
     ],
     3: [
-      {"q": "Bolehkah saya meminjam layang-layangmu", "a": "may i borrow your kite"},
+      {
+        "q": "Bolehkah saya meminjam layang-layangmu",
+        "a": "may i borrow your kite",
+      },
       {"q": "Ya kamu boleh", "a": "yes you may"},
       {"q": "Robot itu berwarna biru", "a": "the robot is blue"},
       {"q": "Bentuknya adalah persegi", "a": "the shape is a square"},
-      {"q": "Mari berbagi dan bermain bersama", "a": "let us share and play together"},
+      {
+        "q": "Mari berbagi dan bermain bersama",
+        "a": "let us share and play together",
+      },
     ],
   };
 
@@ -124,7 +146,10 @@ class QuestionDataClass4 {
       {"q": "When do you go to school", "a": "i go to school at six o clock"},
     ],
     2: [
-      {"q": "What are you having for lunch", "a": "i am having rice and vegetables"},
+      {
+        "q": "What are you having for lunch",
+        "a": "i am having rice and vegetables",
+      },
       {"q": "Do you like fried chicken", "a": "yes i like fried chicken"},
       {"q": "Is the noodles spicy", "a": "yes noodles are spicy"},
       {"q": "What fruit do you like", "a": "i like sweet mango"},

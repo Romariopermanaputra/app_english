@@ -24,7 +24,9 @@ class ProgressManager {
       final prefs = await SharedPreferences.getInstance();
       final current = await getCurrentUnlockedLevel(classNumber);
 
-      print('🔍 [ProgressManager] completeLevel($level): current=$current for class $classNumber');
+      print(
+        '🔍 [ProgressManager] completeLevel($level): current=$current for class $classNumber',
+      );
 
       if (level >= current) {
         final newLevel = level + 1;
@@ -45,6 +47,8 @@ class ProgressManager {
   static Future<void> resetProgress(int classNumber) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_getKey(classNumber), 1);
-    print('🔄 [ProgressManager] Progress reset to level 1 for class $classNumber');
+    print(
+      '🔄 [ProgressManager] Progress reset to level 1 for class $classNumber',
+    );
   }
 }

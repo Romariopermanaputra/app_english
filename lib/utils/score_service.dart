@@ -5,11 +5,11 @@ import 'auth_service.dart';
 /// Model data satu sesi permainan
 class GameScore {
   final String username;
-  final String module;  // 'reading' | 'writing' | 'speaking'
-  final int    classNumber;
-  final int    level;
-  final int    score;
-  final int    maxScore;
+  final String module; // 'reading' | 'writing' | 'speaking'
+  final int classNumber;
+  final int level;
+  final int score;
+  final int maxScore;
   final DateTime playedAt;
 
   GameScore({
@@ -26,24 +26,24 @@ class GameScore {
 
   factory GameScore.fromJson(Map<String, dynamic> json) {
     return GameScore(
-      username:    json['username']  as String,
-      module:      json['module']    as String,
+      username: json['username'] as String,
+      module: json['module'] as String,
       classNumber: json['class_number'] as int? ?? 4, // Default to 4 if null
-      level:       json['level']     as int,
-      score:       json['score']     as int,
-      maxScore:    json['max_score'] as int,
-      playedAt:  DateTime.parse(json['played_at'] as String),
+      level: json['level'] as int,
+      score: json['score'] as int,
+      maxScore: json['max_score'] as int,
+      playedAt: DateTime.parse(json['played_at'] as String),
     );
   }
 }
 
 /// Model data untuk leaderboard — satu entry per user (agregat)
 class LeaderboardEntry {
-  final int    rank;
+  final int rank;
   final String username;
-  final int    totalScore;
-  final int    totalMax;
-  final int    gamesPlayed;
+  final int totalScore;
+  final int totalMax;
+  final int gamesPlayed;
 
   LeaderboardEntry({
     required this.rank,
@@ -53,7 +53,8 @@ class LeaderboardEntry {
     required this.gamesPlayed,
   });
 
-  int get percentage => totalMax > 0 ? ((totalScore / totalMax) * 100).round() : 0;
+  int get percentage =>
+      totalMax > 0 ? ((totalScore / totalMax) * 100).round() : 0;
 }
 
 /// Service untuk menyimpan dan mengambil skor dari Supabase
@@ -67,26 +68,28 @@ class ScoreService {
   // ─── Simpan skor setelah selesai game ────────────────────────────
   Future<bool> saveScore({
     required String module,
-    required int    classNumber,
-    required int    level,
-    required int    score,
-    required int    maxScore,
+    required int classNumber,
+    required int level,
+    required int score,
+    required int maxScore,
   }) async {
     try {
       final username = await AuthService().getCurrentUsername();
       if (username == '-' || username.isEmpty) return false;
 
       await _db.from('scores').insert({
-        'username':     username,
-        'module':       module,
+        'username': username,
+        'module': module,
         'class_number': classNumber,
-        'level':        level,
-        'score':        score,
-        'max_score':    maxScore,
-        'played_at':  DateTime.now().toIso8601String(),
+        'level': level,
+        'score': score,
+        'max_score': maxScore,
+        'played_at': DateTime.now().toIso8601String(),
       });
 
-      debugPrint('✅ Skor disimpan: $username | $module L$level | $score/$maxScore');
+      debugPrint(
+        '✅ Skor disimpan: $username | $module L$level | $score/$maxScore',
+      );
       return true;
     } catch (e) {
       debugPrint('⚠️ Gagal simpan skor: $e');
@@ -105,7 +108,7 @@ class ScoreService {
       // 1. Dapatkan skor maksimum untuk setiap (username + module + level)
       // Key: "username|module|level" -> Map<String, int> { 'score': X, 'max_score': Y }
       final Map<String, Map<String, int>> maxScoresPerLevel = {};
-      
+
       // Hitung total berapa kali tiap user main (meskipun diulang)
       final Map<String, int> gamesPlayedPerUser = {};
 
@@ -119,7 +122,7 @@ class ScoreService {
         gamesPlayedPerUser[name] = (gamesPlayedPerUser[name] ?? 0) + 1;
 
         final key = "$name|$module|$level";
-        
+
         if (!maxScoresPerLevel.containsKey(key)) {
           maxScoresPerLevel[key] = {'score': score, 'max_score': maxScore};
         } else {
@@ -133,13 +136,15 @@ class ScoreService {
 
       // 2. Jumlahkan skor max tersebut untuk tiap user
       final Map<String, Map<String, int>> userTotals = {};
-      
+
       maxScoresPerLevel.forEach((key, value) {
         final name = key.split('|')[0];
-        
+
         userTotals.putIfAbsent(name, () => {'total': 0, 'max': 0, 'games': 0});
-        userTotals[name]!['total'] = userTotals[name]!['total']! + value['score']!;
-        userTotals[name]!['max'] = userTotals[name]!['max']! + value['max_score']!;
+        userTotals[name]!['total'] =
+            userTotals[name]!['total']! + value['score']!;
+        userTotals[name]!['max'] =
+            userTotals[name]!['max']! + value['max_score']!;
       });
 
       // Tambahkan data games_played
@@ -153,10 +158,10 @@ class ScoreService {
 
       return entries.asMap().entries.map((e) {
         return LeaderboardEntry(
-          rank:        e.key + 1,
-          username:    e.value.key,
-          totalScore:  e.value.value['total']!,
-          totalMax:    e.value.value['max']!,
+          rank: e.key + 1,
+          username: e.value.key,
+          totalScore: e.value.value['total']!,
+          totalMax: e.value.value['max']!,
           gamesPlayed: e.value.value['games']!,
         );
       }).toList();

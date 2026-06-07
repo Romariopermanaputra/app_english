@@ -13,11 +13,14 @@ class ResponsiveHelper {
   /// Screen dimensions
   double get screenWidth => mediaQuery.size.width;
   double get screenHeight => mediaQuery.size.height;
-  double get screenDiagonal => sqrt(screenWidth * screenWidth + screenHeight * screenHeight);
+  double get screenDiagonal =>
+      sqrt(screenWidth * screenWidth + screenHeight * screenHeight);
 
   /// Safe area dimensions
-  double get safeWidth => screenWidth - (mediaQuery.padding.left + mediaQuery.padding.right);
-  double get safeHeight => screenHeight - (mediaQuery.padding.top + mediaQuery.padding.bottom);
+  double get safeWidth =>
+      screenWidth - (mediaQuery.padding.left + mediaQuery.padding.right);
+  double get safeHeight =>
+      screenHeight - (mediaQuery.padding.top + mediaQuery.padding.bottom);
 
   /// Device orientation
   bool get isPortrait => mediaQuery.orientation == Orientation.portrait;
@@ -91,14 +94,20 @@ class ResponsiveHelper {
   EdgeInsets get paddingSmall => EdgeInsets.all(spacing8);
   EdgeInsets get paddingMedium => EdgeInsets.all(spacing16);
   EdgeInsets get paddingLarge => EdgeInsets.all(spacing24);
-  
-  EdgeInsets get paddingHorizontalSmall => EdgeInsets.symmetric(horizontal: spacing8);
-  EdgeInsets get paddingHorizontalMedium => EdgeInsets.symmetric(horizontal: spacing16);
-  EdgeInsets get paddingHorizontalLarge => EdgeInsets.symmetric(horizontal: spacing24);
 
-  EdgeInsets get paddingVerticalSmall => EdgeInsets.symmetric(vertical: spacing8);
-  EdgeInsets get paddingVerticalMedium => EdgeInsets.symmetric(vertical: spacing16);
-  EdgeInsets get paddingVerticalLarge => EdgeInsets.symmetric(vertical: spacing24);
+  EdgeInsets get paddingHorizontalSmall =>
+      EdgeInsets.symmetric(horizontal: spacing8);
+  EdgeInsets get paddingHorizontalMedium =>
+      EdgeInsets.symmetric(horizontal: spacing16);
+  EdgeInsets get paddingHorizontalLarge =>
+      EdgeInsets.symmetric(horizontal: spacing24);
+
+  EdgeInsets get paddingVerticalSmall =>
+      EdgeInsets.symmetric(vertical: spacing8);
+  EdgeInsets get paddingVerticalMedium =>
+      EdgeInsets.symmetric(vertical: spacing16);
+  EdgeInsets get paddingVerticalLarge =>
+      EdgeInsets.symmetric(vertical: spacing24);
 
   /// Get responsive text style
   TextStyle getTextStyle({
@@ -141,11 +150,7 @@ class ResponsiveHelper {
   }
 }
 
-enum DeviceType {
-  phone,
-  tablet,
-  desktop,
-}
+enum DeviceType { phone, tablet, desktop }
 
 enum TextSize {
   xSmall,

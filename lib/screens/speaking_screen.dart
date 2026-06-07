@@ -7,6 +7,7 @@ import '../utils/score_service.dart';
 import '../utils/responsive_helper.dart';
 import '../utils/audio_manager.dart';
 import '../widgets/kid_friendly_background.dart';
+import '../widgets/feedback_bottom_panel.dart'; // ✅ Import FeedbackBottomPanel
 import 'practice_result_screen.dart';
 
 class SpeakingScreen extends StatefulWidget {
@@ -350,16 +351,18 @@ class _SpeakingScreenState extends State<SpeakingScreen>
       body: KidFriendlyBackground(
         baseColor: Colors.orange,
         child: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-            return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight - 40),
-                child: IntrinsicHeight(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
+          child: Stack(
+            children: [
+              Center(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 24, right: 24, top: 20, bottom: 80),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
               // ── Progress bar ──────────────────────────────────────────────
               Row(
                 children: List.generate(_questions.length, (i) {
@@ -543,152 +546,31 @@ class _SpeakingScreenState extends State<SpeakingScreen>
                 ),
               ),
 
-              const SizedBox(height: 16),
-
-              // ── Feedback benar / salah ─────────────────────────────────────
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 400),
-                child: _feedback.isEmpty
-                    ? const SizedBox(key: ValueKey('empty'), height: 56)
-                    : Container(
-                        key: ValueKey(_feedback),
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 14,
-                        ),
-                        decoration: BoxDecoration(
-                          color: _feedback == 'correct'
-                              ? Colors.green.shade50
-                              : Colors.red.shade50,
-                          borderRadius: BorderRadius.circular(24),
-                          border: Border.all(
-                            color: _feedback == 'correct'
-                                ? Colors.green.shade400
-                                : Colors.red.shade400,
-                            width: 3,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: (_feedback == 'correct' ? Colors.green : Colors.red).withOpacity(0.2),
-                              blurRadius: 0,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              _feedback == 'correct'
-                                  ? Icons.check_circle
-                                  : Icons.cancel,
-                              color: _feedback == 'correct'
-                                  ? Colors.green
-                                  : Colors.red,
-                              size: 26,
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    _feedback == 'correct'
-                                        ? 'Benar! +10 poin 🎉'
-                                        : 'Kurang tepat, coba lagi!',
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
-                                      color: _feedback == 'correct'
-                                          ? Colors.green.shade700
-                                          : Colors.red.shade700,
-                                    ),
-                                  ),
-                                  if (_feedback == 'wrong')
-                                    Text(
-                                      'Yang benar: "${_questions[_index]['q']}"',
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        color: Colors.red.shade400,
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-              ),
-
-              const Spacer(),
-
-              // ── Tombol Next / Retry ───────────────────────────────────────────────
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _answered
-                      ? (_feedback == 'wrong' ? _retry : _next)
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _feedback == 'wrong' ? Colors.red.shade500 : Colors.orange.shade500,
-                    disabledBackgroundColor: Colors.grey.shade300,
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
-                      side: BorderSide(
-                        color: _answered 
-                            ? (_feedback == 'wrong' ? Colors.red.shade700 : Colors.orange.shade700) 
-                            : Colors.transparent, 
-                        width: 3
-                      ),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: Text(
-                    _feedback == 'wrong'
-                        ? 'Coba Lagi 🔄'
-                        : (isLastQuestion ? 'Lihat Hasil 🏆' : 'Soal Berikutnya →'),
-                    style: const TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-              if (_answered && _feedback == 'wrong') ...[
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _next,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey.shade400,
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: Text(
-                      isLastQuestion ? 'Lihat Hasil 🏆' : 'Lanjut →',
-                      style: const TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        ],
                       ),
                     ),
                   ),
                 ),
-              ],
-                    ],
-                  ),
+              ),
+
+              // ─── Duolingo-style Bottom Feedback Panel ───
+              AnimatedPositioned(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOutCubic,
+                left: 0,
+                right: 0,
+                bottom: _feedback.isNotEmpty ? 0 : -350,
+                child: FeedbackBottomPanel(
+                  feedback: _feedback,
+                  isLastQuestion: _index == _questions.length - 1,
+                  correctAnswer: q['q'] ?? "",
+                  onNext: _next,
+                  onRetry: _retry,
                 ),
               ),
-            );
-          },
+            ],
+          ),
         ),
-      ),
       ),
     );
   }

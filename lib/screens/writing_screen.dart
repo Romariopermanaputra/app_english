@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import '../utils/responsive_helper.dart';
 
 // widgets
 import '../data/question_data.dart';
@@ -12,6 +11,7 @@ import '../utils/progress_manager.dart';
 import '../utils/score_service.dart';
 import '../utils/audio_manager.dart'; // For click sound
 import '../widgets/kid_friendly_background.dart';
+import '../widgets/feedback_bottom_panel.dart'; // ✅ Import FeedbackBottomPanel
 import 'practice_result_screen.dart';
 
 class WritingScreen extends StatefulWidget {
@@ -198,20 +198,28 @@ class _WritingScreenState extends State<WritingScreen> {
       ),
       body: KidFriendlyBackground(
         baseColor: Colors.teal,
-        child: Column(
+        child: Stack(
           children: [
-            ProgressBar(
-              current: index + 1,
-              total: questions.length,
-              color: const Color(0xFF4ECDC4),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  children: [
-                    // Question Card
-                  Container(
+            Column(
+              children: [
+                ProgressBar(
+                  current: index + 1,
+                  total: questions.length,
+                  color: const Color(0xFF4ECDC4),
+                ),
+                Expanded(
+                  child: Center(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 24, right: 24, top: 24, bottom: 80),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Question Card
+                        Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(32),
                     decoration: BoxDecoration(
@@ -304,67 +312,30 @@ class _WritingScreenState extends State<WritingScreen> {
                       color: _selectedWords.isEmpty ? Colors.grey : const Color(0xFF4ECDC4),
                     ),
 
-                  // Feedback
-                  if (feedback.isNotEmpty) ...[
-                    FeedbackBadge(isCorrect: feedback == "correct"),
-                    const SizedBox(height: 24),
-                    
-                    if (feedback == "wrong") ...[
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.red.shade50,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.red.shade200, width: 2),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Jawaban yang benar:",
-                              style: TextStyle(
-                                color: Colors.red.shade700,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              q['a'] ?? "",
-                              style: TextStyle(
-                                color: Colors.red.shade900,
-                                fontWeight: FontWeight.w800,
-                                fontSize: 18,
-                              ),
-                            ),
-                          ],
+                      ScoreDisplay(score: score),
+                            ],
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 24),
-                    ],
-
-                    ActionButton(
-                      text: feedback == "wrong"
-                          ? "Coba Lagi 🔄"
-                          : (index < questions.length - 1 ? "Next Question" : "See Results"),
-                      onTap: feedback == "wrong" ? retry : next,
-                      color: feedback == "wrong" ? Colors.red : const Color(0xFF4ECDC4),
                     ),
-                    if (feedback == "wrong") ...[
-                      const SizedBox(height: 12),
-                      ActionButton(
-                        text: index < questions.length - 1 ? "Lanjut →" : "See Results 🏆",
-                        onTap: next,
-                        color: Colors.grey.shade500,
-                      ),
-                    ],
-                  ],
+                  ),
+                ),
+              ],
+            ),
 
-                  const SizedBox(height: 24),
-                  ScoreDisplay(score: score),
-                ],
-              ),
+          // ─── Duolingo-style Bottom Feedback Panel ───
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOutCubic,
+            left: 0,
+            right: 0,
+            bottom: feedback.isNotEmpty ? 0 : -350,
+            child: FeedbackBottomPanel(
+              feedback: feedback,
+              isLastQuestion: index == questions.length - 1,
+              correctAnswer: q['a'] ?? "",
+              onNext: next,
+              onRetry: retry,
             ),
           ),
         ],

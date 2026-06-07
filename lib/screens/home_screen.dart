@@ -164,49 +164,70 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       s('welcome'),
                       textAlign: TextAlign.center,
                       style: GoogleFonts.fredoka(
-                        textStyle: responsive.getTextStyle(
-                          size: TextSize.heading,
-                          color: Colors.brown,
-                          weight: FontWeight.bold,
-                        ).copyWith(fontSize: responsive.spacing32),
+                        textStyle: responsive
+                            .getTextStyle(
+                              size: TextSize.heading,
+                              color: Colors.brown,
+                              weight: FontWeight.bold,
+                            )
+                            .copyWith(fontSize: responsive.spacing32),
                       ),
                     ),
                     SizedBox(height: responsive.spacing5),
                     Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: responsive.spacing24,
-                        vertical: responsive.spacing12,
-                      ),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Colors.orange.shade400, Colors.red.shade400],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(30),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.orange.withOpacity(0.5),
-                            blurRadius: 16,
-                            offset: const Offset(0, 8),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: responsive.spacing24,
+                            vertical: responsive.spacing12,
                           ),
-                        ],
-                      ),
-                      child: Text(
-                        s('app_title'),
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.fredoka(
-                          textStyle: responsive.getTextStyle(
-                            size: TextSize.xLarge,
-                            color: Colors.white,
-                            weight: FontWeight.w900,
-                            letterSpacing: 2,
-                          ).copyWith(fontSize: responsive.spacing40 * 1.2),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.orange.shade400,
+                                Colors.red.shade400,
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(30),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.orange.withOpacity(0.5),
+                                blurRadius: 16,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          child: Text(
+                            s('app_title'),
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.fredoka(
+                              textStyle: responsive
+                                  .getTextStyle(
+                                    size: TextSize.xLarge,
+                                    color: Colors.white,
+                                    weight: FontWeight.w900,
+                                    letterSpacing: 2,
+                                  )
+                                  .copyWith(
+                                    fontSize: responsive.spacing40 * 1.2,
+                                  ),
+                            ),
+                          ),
+                        )
+                        .animate(
+                          onPlay: (controller) =>
+                              controller.repeat(reverse: true),
+                        )
+                        .shimmer(
+                          duration: 2.seconds,
+                          color: Colors.white.withOpacity(0.3),
+                        )
+                        .scaleXY(
+                          begin: 1.0,
+                          end: 1.05,
+                          duration: 1200.ms,
+                          curve: Curves.easeInOut,
                         ),
-                      ),
-                    ).animate(onPlay: (controller) => controller.repeat(reverse: true))
-                     .shimmer(duration: 2.seconds, color: Colors.white.withOpacity(0.3))
-                     .scaleXY(begin: 1.0, end: 1.05, duration: 1200.ms, curve: Curves.easeInOut),
                     SizedBox(height: responsive.spacing40),
                     Center(
                       child: _springButton(
@@ -306,11 +327,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   Text(
                     text,
                     style: GoogleFonts.fredoka(
-                      textStyle: context.responsive.getTextStyle(
-                        size: TextSize.bodyLarge,
-                        color: Colors.white,
-                        weight: FontWeight.bold,
-                      ).copyWith(fontSize: responsive.fontSizeBodyLarge * 1.2),
+                      textStyle: context.responsive
+                          .getTextStyle(
+                            size: TextSize.bodyLarge,
+                            color: Colors.white,
+                            weight: FontWeight.bold,
+                          )
+                          .copyWith(
+                            fontSize: responsive.fontSizeBodyLarge * 1.2,
+                          ),
                     ),
                   ),
                 ],
