@@ -96,27 +96,27 @@ class QuestionDataClass6 {
 
   static const Map<int, List<Map<String, String>>> writingQuestions = {
     1: [
-      {"q": "I like healthy vegetables", "a": "i like healthy vegetables"},
-      {"q": "Corn is my favorite vegetable", "a": "corn is my favorite vegetable"},
-      {"q": "We buy lettuce and cabbage", "a": "we buy lettuce and cabbage"},
-      {"q": "The vegetables are fresh", "a": "the vegetables are fresh"},
-      {"q": "Pumpkins are big and orange", "a": "pumpkins are big and orange"},
+      {"q": "Saya suka sayuran sehat", "a": "i like healthy vegetables"},
+      {"q": "Jagung adalah sayuran favoritku", "a": "corn is my favorite vegetable"},
+      {"q": "Kita membeli selada dan kubis", "a": "we buy lettuce and cabbage"},
+      {"q": "Sayuran itu segar", "a": "the vegetables are fresh"},
+      {"q": "Labu itu besar dan oranye", "a": "pumpkins are big and orange"},
     ],
 
     2: [
-      {"q": "I brush my teeth every day", "a": "i brush my teeth every day"},
-      {"q": "Wash your hands before eating", "a": "wash your hands before eating"},
-      {"q": "I take a bath twice a day", "a": "i take a bath twice a day"},
-      {"q": "Good hygiene keeps us healthy", "a": "good hygiene keeps us healthy"},
-      {"q": "Bara cuts his nails every week", "a": "bara cuts his nails every week"},
+      {"q": "Saya menyikat gigi setiap hari", "a": "i brush my teeth every day"},
+      {"q": "Cuci tanganmu sebelum makan", "a": "wash your hands before eating"},
+      {"q": "Saya mandi dua kali sehari", "a": "i take a bath twice a day"},
+      {"q": "Kebersihan yang baik membuat kita sehat", "a": "good hygiene keeps us healthy"},
+      {"q": "Bara memotong kukunya setiap minggu", "a": "bara cuts his nails every week"},
     ],
 
     3: [
-      {"q": "We go to the zoo today", "a": "we go to the zoo today"},
-      {"q": "The giraffe is very tall", "a": "the giraffe is very tall"},
-      {"q": "Elephants are big and strong", "a": "elephants are big and strong"},
-      {"q": "I like monkeys at the zoo", "a": "i like monkeys at the zoo"},
-      {"q": "The zoo trip is exciting", "a": "the zoo trip is exciting"},
+      {"q": "Kita pergi ke kebun binatang hari ini", "a": "we go to the zoo today"},
+      {"q": "Jerapah itu sangat tinggi", "a": "the giraffe is very tall"},
+      {"q": "Gajah itu besar dan kuat", "a": "elephants are big and strong"},
+      {"q": "Saya suka monyet di kebun binatang", "a": "i like monkeys at the zoo"},
+      {"q": "Perjalanan ke kebun binatang itu menyenangkan", "a": "the zoo trip is exciting"},
     ],
   };
 

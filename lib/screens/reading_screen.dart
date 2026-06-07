@@ -8,9 +8,11 @@ import '../widgets/feedback_badge.dart';
 import '../widgets/action_button.dart';
 import '../widgets/score_display.dart';
 import '../widgets/option_button.dart';
-import '../widgets/result_dialog.dart';
 import '../utils/score_service.dart';
 import '../utils/progress_manager.dart'; // ✅ Import ProgressManager
+import '../utils/audio_manager.dart';
+import '../widgets/kid_friendly_background.dart';
+import 'practice_result_screen.dart';
 
 class ReadingScreen extends StatefulWidget {
   final int chapter;
@@ -37,6 +39,7 @@ class _ReadingScreenState extends State<ReadingScreen> {
   int score = 0;
   String feedback = "";
   String selectedAnswer = "";
+  bool _hasFailedCurrentQuestion = false;
 
   void answer(String a) {
     selectedAnswer = a;
@@ -45,9 +48,12 @@ class _ReadingScreenState extends State<ReadingScreen> {
 
     if (a == correctAnswer) {
       feedback = "correct";
-      score += 10;
+      if (!_hasFailedCurrentQuestion) {
+        score += 10;
+      }
     } else {
       feedback = "wrong";
+      _hasFailedCurrentQuestion = true;
     }
 
     setState(() {});
@@ -58,6 +64,7 @@ class _ReadingScreenState extends State<ReadingScreen> {
       index++;
       feedback = "";
       selectedAnswer = "";
+      _hasFailedCurrentQuestion = false;
     } else {
       showResultDialog();
     }
@@ -65,40 +72,45 @@ class _ReadingScreenState extends State<ReadingScreen> {
     setState(() {});
   }
 
+  void retry() {
+    AudioManager().playSfx('click.wav');
+    setState(() {
+      feedback = "";
+      selectedAnswer = "";
+    });
+  }
+
   // ✅ UPDATED: Menambahkan ProgressManager.completeLevel(1)
-  void showResultDialog() {
-    int correct = score ~/ 10;
+  void showResultDialog() async {
     final maxScore = questions.length * 10;
 
     // Simpan skor ke Supabase
     ScoreService().saveScore(
       module: 'reading',
+      classNumber: widget.classNumber,
       level: 1,
       score: score,
       maxScore: maxScore,
     );
 
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => ResultDialog(
-        correct: correct,
-        total: questions.length,
-        score: score,
-        onClose: () async {
-          // 🎯 Simpan progress: Level 1 (Reading) selesai → buka Level 2
-          await ProgressManager.completeLevel(1);
+    // 🎯 Simpan progress: Level 1 (Reading) selesai → buka Level 2
+    await ProgressManager.completeLevel(widget.classNumber, 1);
+    debugPrint('✅ Reading Level completed! Progress saved.');
 
-          debugPrint('✅ Reading Level completed! Progress saved.');
-
-          // Kembali ke LevelMapScreen (pop 2x: dialog + screen)
-          if (mounted) {
-            Navigator.pop(context); // tutup dialog
-            Navigator.pop(context); // kembali ke LevelMapScreen
-          }
-        },
-      ),
-    );
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => PracticeResultScreen(
+            score: score,
+            totalQuestions: questions.length,
+            classNumber: widget.classNumber,
+            levelType: 'reading',
+            level: widget.chapter,
+          ),
+        ),
+      );
+    }
   }
 
   @override
@@ -110,51 +122,88 @@ class _ReadingScreenState extends State<ReadingScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Reading Practice"),
+        title: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.menu_book, color: Colors.orange),
+            SizedBox(width: 8),
+            Text("Reading Practice", style: TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
         backgroundColor: const Color(0xFFFFE66D),
         foregroundColor: Colors.black87,
         elevation: 0,
       ),
-      body: Column(
-        children: [
-          ProgressBar(
-            current: index + 1,
-            total: questions.length,
-            color: const Color(0xFFFFE66D),
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                children: [
-                  // Passage
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFFFF9C4), Color(0xFFFFE082)],
+      body: KidFriendlyBackground(
+        baseColor: Colors.amber,
+        child: Column(
+          children: [
+            ProgressBar(
+              current: index + 1,
+              total: questions.length,
+              color: const Color(0xFFFFE66D),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  children: [
+                    // Passage
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(28),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(color: Colors.orange.shade200, width: 4),
+                        borderRadius: BorderRadius.circular(32),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.orange.withOpacity(0.2),
+                            blurRadius: 0,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
                       ),
-                      borderRadius: BorderRadius.circular(20),
+                      child: Column(
+                        children: [
+                          const Text(
+                            "📖 Cerita Kita",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.orange,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            text,
+                            style: const TextStyle(fontSize: 18, height: 1.6, color: Color(0xFF3D2C1E)),
+                          ),
+                        ],
+                      ),
                     ),
-                    child: Text(
-                      text,
-                      style: const TextStyle(fontSize: 16, height: 1.6),
-                    ),
-                  ),
 
-                  const SizedBox(height: 24),
+                    const SizedBox(height: 24),
 
-                  // Question
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
+                    // Question
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade50,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: Colors.blue.shade200, width: 3),
+                      ),
+                      child: Text(
+                        q['q'] ?? "", 
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.blueAccent,
+                        ),
+                      ),
                     ),
-                    child: Text(q['q'] ?? "", textAlign: TextAlign.center),
-                  ),
 
                   const SizedBox(height: 20),
 
@@ -179,12 +228,20 @@ class _ReadingScreenState extends State<ReadingScreen> {
                     FeedbackBadge(isCorrect: feedback == "correct"),
                     const SizedBox(height: 20),
                     ActionButton(
-                      text: index < questions.length - 1
-                          ? "Next Question"
-                          : "See Results",
-                      onTap: next,
-                      color: const Color(0xFFFFB300),
+                      text: feedback == "wrong"
+                          ? "Coba Lagi 🔄"
+                          : (index < questions.length - 1 ? "Next Question" : "See Results"),
+                      onTap: feedback == "wrong" ? retry : next,
+                      color: feedback == "wrong" ? Colors.red : const Color(0xFFFFB300),
                     ),
+                    if (feedback == "wrong") ...[
+                      const SizedBox(height: 12),
+                      ActionButton(
+                        text: index < questions.length - 1 ? "Lanjut →" : "See Results 🏆",
+                        onTap: next,
+                        color: Colors.grey.shade500,
+                      ),
+                    ],
                   ],
 
                   const SizedBox(height: 16),
@@ -194,6 +251,7 @@ class _ReadingScreenState extends State<ReadingScreen> {
             ),
           ),
         ],
+      ),
       ),
     );
   }

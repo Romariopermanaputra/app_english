@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../utils/app_language.dart';
 import '../utils/app_strings.dart';
 import '../utils/auth_service.dart';
+import '../utils/audio_manager.dart';
 import '../utils/responsive_helper.dart';
 import 'login_screen.dart';
 
@@ -74,6 +75,12 @@ class _SettingsScreenState extends State<SettingsScreen>
       _musicVolume         = 0.7;
       _sfxVolume           = 0.8;
     });
+    
+    AudioManager().setMuted(false);
+    AudioManager().setVolume(0.7);
+    AudioManager().setSfxEnabled(true);
+    AudioManager().setSfxVolume(0.8);
+    
     // Reset bahasa ke default (id)
     await AppLanguage().setLanguage('id');
 
@@ -120,7 +127,10 @@ class _SettingsScreenState extends State<SettingsScreen>
                 ),
                 child: IconButton(
                   icon: const Icon(Icons.arrow_back_ios, color: Colors.brown, size: 18),
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () {
+                    AudioManager().playSfx('click.wav');
+                    Navigator.pop(context);
+                  },
                   padding: const EdgeInsets.all(8),
                   constraints: const BoxConstraints(),
                 ),
@@ -189,6 +199,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                               onChanged: (val) {
                                 setState(() => _musicEnabled = val);
                                 _saveBool('music_enabled', val);
+                                AudioManager().setMuted(!val);
                               },
                             ),
                             if (_musicEnabled) ...[
@@ -201,6 +212,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                                 onChanged: (val) {
                                   setState(() => _musicVolume = val);
                                   _saveDouble('music_volume', val);
+                                  AudioManager().setVolume(val);
                                 },
                               ),
                             ],
@@ -222,6 +234,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                               onChanged: (val) {
                                 setState(() => _soundEffectEnabled = val);
                                 _saveBool('sfx_enabled', val);
+                                AudioManager().setSfxEnabled(val);
                               },
                             ),
                             if (_soundEffectEnabled) ...[
@@ -234,6 +247,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                                 onChanged: (val) {
                                   setState(() => _sfxVolume = val);
                                   _saveDouble('sfx_volume', val);
+                                  AudioManager().setSfxVolume(val);
                                 },
                               ),
                             ],
@@ -285,7 +299,10 @@ class _SettingsScreenState extends State<SettingsScreen>
                         const SizedBox(height: 24),
                         Center(
                           child: ElevatedButton.icon(
-                            onPressed: () => _showResetDialog(s),
+                            onPressed: () {
+                              AudioManager().playSfx('click.wav');
+                              _showResetDialog(s);
+                            },
                             icon: const Icon(Icons.restore, color: Colors.white),
                             label: Text(
                               s('reset_btn'),
@@ -380,7 +397,10 @@ class _SettingsScreenState extends State<SettingsScreen>
       subtitle: Text(subtitle, style: const TextStyle(fontSize: 12)),
       value: value,
       activeThumbColor: Colors.green.shade600,
-      onChanged: onChanged,
+      onChanged: (val) {
+        AudioManager().playSfx('click.wav');
+        onChanged(val);
+      },
     );
   }
 
@@ -450,7 +470,10 @@ class _SettingsScreenState extends State<SettingsScreen>
       trailing: isSelected
           ? Icon(Icons.check_circle, color: Colors.green.shade600)
           : const Icon(Icons.circle_outlined, color: Colors.grey),
-      onTap: () => AppLanguage().setLanguage(value), // 🌐 langsung ubah bahasa global
+      onTap: () {
+        AudioManager().playSfx('click.wav');
+        AppLanguage().setLanguage(value);
+      }, // 🌐 langsung ubah bahasa global
     );
   }
 
@@ -463,11 +486,15 @@ class _SettingsScreenState extends State<SettingsScreen>
         content: Text(s('reset_msg')),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
+            onPressed: () {
+              AudioManager().playSfx('click.wav');
+              Navigator.pop(ctx);
+            },
             child: Text(s('cancel')),
           ),
           ElevatedButton(
             onPressed: () {
+              AudioManager().playSfx('click.wav');
               Navigator.pop(ctx);
               _resetSettings();
             },
@@ -534,7 +561,10 @@ class _SettingsScreenState extends State<SettingsScreen>
                 ),
               ),
               trailing: const Icon(Icons.chevron_right, color: Colors.red),
-              onTap: () => _showLogoutDialog(s),
+              onTap: () {
+                AudioManager().playSfx('click.wav');
+                _showLogoutDialog(s);
+              },
             ),
           ],
         );
@@ -551,11 +581,15 @@ class _SettingsScreenState extends State<SettingsScreen>
         content: Text(s('logout_msg')),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
+            onPressed: () {
+              AudioManager().playSfx('click.wav');
+              Navigator.pop(ctx);
+            },
             child: Text(s('cancel')),
           ),
           ElevatedButton(
             onPressed: () {
+              AudioManager().playSfx('click.wav');
               Navigator.pop(ctx);
               _logout(s);
             },

@@ -29,6 +29,7 @@ dependencies:
   
   # 📱 Device Info (buat ID unik player)
   device_info_plus: ^9.1.1
+  google_fonts: ^8.1.0
   # untuk membatasi soal 
 
 dev_dependencies:
@@ -53,6 +54,5 @@ flutter:
   
   # 🖼️ Assets
   assets:
-    - assets/images/ENGLearn.png
+    - assets/images/
     - assets/audio/
-    # - assets/images/level_map_screen.png  # belum ada

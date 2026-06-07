@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/audio_manager.dart';
 
 class ResultDialog extends StatelessWidget {
   final int correct;
@@ -27,7 +28,10 @@ class ResultDialog extends StatelessWidget {
       ),
       actions: [
         TextButton(
-          onPressed: onClose,
+          onPressed: () {
+            AudioManager().playSfx('click.wav');
+            onClose();
+          },
           child: const Text("Close"),
         ),
       ],

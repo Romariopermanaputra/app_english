@@ -3,6 +3,7 @@ import '../utils/app_language.dart';
 import '../utils/app_strings.dart';
 import '../utils/auth_service.dart';
 import '../utils/responsive_helper.dart';
+import '../utils/audio_manager.dart';
 import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -286,7 +287,10 @@ class _LoginScreenState extends State<LoginScreen>
                                         width: double.infinity,
                                         height: responsive.buttonHeight,
                                         child: ElevatedButton(
-                                          onPressed: _isLoading ? null : () => _submit(lang),
+                                          onPressed: _isLoading ? null : () {
+                                            AudioManager().playSfx('click.wav');
+                                            _submit(lang);
+                                          },
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor: Colors.green.shade700,
                                             shape: RoundedRectangleBorder(

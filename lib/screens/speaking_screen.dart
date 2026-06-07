@@ -3,7 +3,11 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:speech_to_text/speech_recognition_result.dart';
 import '../data/question_data.dart';
 import '../utils/progress_manager.dart'; // ✅ Import ProgressManager
+import '../utils/score_service.dart';
 import '../utils/responsive_helper.dart';
+import '../utils/audio_manager.dart';
+import '../widgets/kid_friendly_background.dart';
+import 'practice_result_screen.dart';
 
 class SpeakingScreen extends StatefulWidget {
   final int chapter;
@@ -29,10 +33,14 @@ class _SpeakingScreenState extends State<SpeakingScreen>
   int _score = 0;
   String _feedback = ''; // 'correct' | 'wrong' | ''
   bool _answered = false;
+  bool _hasFailedCurrentQuestion = false;
 
   // ─── Pulse animation ──────────────────────────────────────────────────────
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
+
+  // ─── Session tracking ─────────────────────────────────────────────────────
+  int _listenSessionId = 0;
 
   // ─── Daftar soal ──────────────────────────────────────────────────────────
   late final List<Map<String, String>> _questions;
@@ -108,6 +116,7 @@ class _SpeakingScreenState extends State<SpeakingScreen>
 
   // ─── Mulai Rekam ──────────────────────────────────────────────────────────
   Future<void> _startListening() async {
+    AudioManager().playSfx('click.wav');
     if (!_speechAvailable || _answered || _isListening) return;
 
     setState(() {
@@ -116,6 +125,9 @@ class _SpeakingScreenState extends State<SpeakingScreen>
       _feedback = '';
       _isListening = true;
     });
+
+    _listenSessionId++;
+    final int currentSession = _listenSessionId;
 
     _pulseController.repeat(reverse: true);
 
@@ -130,7 +142,10 @@ class _SpeakingScreenState extends State<SpeakingScreen>
     debugPrint('🌐 Locale dipilih: $selectedLocale ?? default');
 
     await _speech.listen(
-      onResult: _onSpeechResult,
+      onResult: (result) {
+        if (_listenSessionId != currentSession) return;
+        _onSpeechResult(result);
+      },
       listenFor: const Duration(seconds: 10),
       pauseFor: const Duration(seconds: 3),
       localeId: selectedLocale,
@@ -167,6 +182,7 @@ class _SpeakingScreenState extends State<SpeakingScreen>
 
   // ─── Stop Rekam Manual ────────────────────────────────────────────────────
   Future<void> _stopListening() async {
+    AudioManager().playSfx('click.wav');
     await _speech.stop();
     _pulseController
       ..stop()
@@ -191,13 +207,20 @@ class _SpeakingScreenState extends State<SpeakingScreen>
   void _checkAnswer() {
     if (_answered) return;
 
-    final expected = _questions[_index]['a']!.toLowerCase().trim();
-    final recognized = _recognizedText.toLowerCase().trim();
+    String cleanString(String text) {
+      return text.toLowerCase()
+          .replaceAll(RegExp(r'[^\w\s]'), '') // hapus tanda baca
+          .trim()
+          .replaceAll(RegExp(r'\s+'), ' '); // hapus spasi berlebih
+    }
+
+    final expected = cleanString(_questions[_index]['q']!);
+    final recognized = cleanString(_recognizedText);
 
     final isCorrect =
         recognized == expected ||
-        recognized.contains(expected) ||
-        expected.contains(recognized);
+        (recognized.isNotEmpty && recognized.contains(expected)) ||
+        (recognized.isNotEmpty && expected.contains(recognized));
 
     debugPrint('✅ Expected  : "$expected"');
     debugPrint('🗣️ Recognized: "$recognized"');
@@ -206,12 +229,21 @@ class _SpeakingScreenState extends State<SpeakingScreen>
     setState(() {
       _answered = true;
       _feedback = isCorrect ? 'correct' : 'wrong';
-      if (isCorrect) _score += 10;
+      if (isCorrect) {
+        if (!_hasFailedCurrentQuestion) {
+          _score += 10;
+        }
+      } else {
+        _hasFailedCurrentQuestion = true;
+      }
     });
   }
 
   // ─── Next Question ────────────────────────────────────────────────────────
   void _next() {
+    AudioManager().playSfx('click.wav');
+    _speech.cancel();
+    _listenSessionId++;
     if (_index < _questions.length - 1) {
       setState(() {
         _index++;
@@ -219,99 +251,57 @@ class _SpeakingScreenState extends State<SpeakingScreen>
         _answered = false;
         _recognizedText = '';
         _liveText = '';
+        _hasFailedCurrentQuestion = false;
       });
     } else {
       _showResultDialog();
     }
   }
 
+  // ─── Retry Question ───────────────────────────────────────────────────────
+  void _retry() {
+    AudioManager().playSfx('click.wav');
+    _speech.cancel();
+    _listenSessionId++;
+    setState(() {
+      _feedback = '';
+      _answered = false;
+      _recognizedText = '';
+      _liveText = '';
+    });
+  }
+
   // ─── Dialog Hasil Akhir ───────────────────────────────────────────────────
   // ✅ UPDATED: Menambahkan ProgressManager.completeLevel(3)
-  void _showResultDialog() {
+  void _showResultDialog() async {
     final total = _questions.length * 10;
-    final percent = (_score / total * 100).round();
 
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text(
-          '🎉 Selesai!',
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              '$percent%',
-              style: TextStyle(
-                fontSize: 56,
-                fontWeight: FontWeight.w900,
-                color: percent >= 70 ? Colors.green : Colors.orange,
-              ),
-            ),
-            Text(
-              'Score: $_score / $total',
-              style: const TextStyle(fontSize: 18, color: Colors.grey),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              percent == 100
-                  ? '🏆 Sempurna!'
-                  : percent >= 70
-                  ? '👍 Bagus sekali!'
-                  : '💪 Terus berlatih!',
-              style: const TextStyle(fontSize: 16),
-            ),
-          ],
-        ),
-        actions: [
-          // ✅ TOMBOL "SELESAI" - Simpan progress Level 3
-          TextButton(
-            onPressed: () async {
-              // 🎯 Simpan progress: Level 3 selesai
-              await ProgressManager.completeLevel(3);
-
-              debugPrint('✅ Speaking Level completed! Progress saved.');
-
-              // Kembali ke LevelMapScreen (pop 2x: dialog + screen)
-              if (mounted) {
-                Navigator.pop(context); // tutup dialog
-                Navigator.pop(context); // kembali ke LevelMapScreen
-              }
-            },
-            child: const Text('Selesai', style: TextStyle(fontSize: 16)),
-          ),
-
-          // 🔄 TOMBOL "ULANGI" - Tidak simpan progress, hanya restart quiz
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.orange,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            onPressed: () {
-              Navigator.pop(context); // tutup dialog saja
-              setState(() {
-                _index = 0;
-                _score = 0;
-                _feedback = '';
-                _answered = false;
-                _recognizedText = '';
-                _liveText = '';
-              });
-            },
-            child: const Text(
-              'Ulangi',
-              style: TextStyle(color: Colors.white, fontSize: 16),
-            ),
-          ),
-        ],
-      ),
+    ScoreService().saveScore(
+      module: 'speaking',
+      classNumber: widget.classNumber,
+      level: 3,
+      score: _score,
+      maxScore: total,
     );
+
+    // 🎯 Simpan progress: Level 3 selesai
+    await ProgressManager.completeLevel(widget.classNumber, 3);
+    debugPrint('✅ Speaking Level completed! Progress saved.');
+
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => PracticeResultScreen(
+            score: _score,
+            totalQuestions: _questions.length,
+            classNumber: widget.classNumber,
+            levelType: 'speaking',
+            level: widget.chapter,
+          ),
+        ),
+      );
+    }
   }
 
   // ─── Snackbar Helper ──────────────────────────────────────────────────────
@@ -357,12 +347,19 @@ class _SpeakingScreenState extends State<SpeakingScreen>
           ),
         ],
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
+      body: KidFriendlyBackground(
+        baseColor: Colors.orange,
+        child: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight - 40),
+                child: IntrinsicHeight(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
               // ── Progress bar ──────────────────────────────────────────────
               Row(
                 children: List.generate(_questions.length, (i) {
@@ -400,11 +397,12 @@ class _SpeakingScreenState extends State<SpeakingScreen>
                 ),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(32),
+                  border: Border.all(color: Colors.orange.shade200, width: 4),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.orange.withOpacity(0.15),
-                      blurRadius: 20,
+                      color: Colors.orange.withOpacity(0.2),
+                      blurRadius: 0,
                       offset: const Offset(0, 8),
                     ),
                   ],
@@ -413,16 +411,16 @@ class _SpeakingScreenState extends State<SpeakingScreen>
                   children: [
                     const Text(
                       'Ucapkan kata berikut:',
-                      style: TextStyle(color: Colors.grey, fontSize: 14),
+                      style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 14),
                     Text(
                       q['q']!,
                       style: const TextStyle(
-                        fontSize: 36,
+                        fontSize: 42,
                         fontWeight: FontWeight.w900,
-                        color: Color(0xFF3D2C1E),
-                        letterSpacing: 1,
+                        color: Color(0xFFFF8C00),
+                        letterSpacing: 1.5,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -498,14 +496,21 @@ class _SpeakingScreenState extends State<SpeakingScreen>
                 decoration: BoxDecoration(
                   color: isDisplayingLive
                       ? Colors.blue.shade50
-                      : Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(14),
+                      : Colors.white,
+                  borderRadius: BorderRadius.circular(24),
                   border: Border.all(
                     color: isDisplayingLive
                         ? Colors.blue.shade300
                         : Colors.grey.shade300,
-                    width: isDisplayingLive ? 2 : 1,
+                    width: isDisplayingLive ? 3 : 2,
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 0,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: Row(
                   children: [
@@ -556,12 +561,20 @@ class _SpeakingScreenState extends State<SpeakingScreen>
                           color: _feedback == 'correct'
                               ? Colors.green.shade50
                               : Colors.red.shade50,
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(24),
                           border: Border.all(
                             color: _feedback == 'correct'
-                                ? Colors.green.shade300
-                                : Colors.red.shade300,
+                                ? Colors.green.shade400
+                                : Colors.red.shade400,
+                            width: 3,
                           ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: (_feedback == 'correct' ? Colors.green : Colors.red).withOpacity(0.2),
+                              blurRadius: 0,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
                         child: Row(
                           children: [
@@ -609,22 +622,32 @@ class _SpeakingScreenState extends State<SpeakingScreen>
 
               const Spacer(),
 
-              // ── Tombol Next ───────────────────────────────────────────────
+              // ── Tombol Next / Retry ───────────────────────────────────────────────
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _answered ? _next : null,
+                  onPressed: _answered
+                      ? (_feedback == 'wrong' ? _retry : _next)
+                      : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange.shade700,
+                    backgroundColor: _feedback == 'wrong' ? Colors.red.shade500 : Colors.orange.shade500,
                     disabledBackgroundColor: Colors.grey.shade300,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 20),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(24),
+                      side: BorderSide(
+                        color: _answered 
+                            ? (_feedback == 'wrong' ? Colors.red.shade700 : Colors.orange.shade700) 
+                            : Colors.transparent, 
+                        width: 3
+                      ),
                     ),
-                    elevation: 4,
+                    elevation: 0,
                   ),
                   child: Text(
-                    isLastQuestion ? 'Lihat Hasil 🏆' : 'Soal Berikutnya →',
+                    _feedback == 'wrong'
+                        ? 'Coba Lagi 🔄'
+                        : (isLastQuestion ? 'Lihat Hasil 🏆' : 'Soal Berikutnya →'),
                     style: const TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
@@ -633,10 +656,39 @@ class _SpeakingScreenState extends State<SpeakingScreen>
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
-            ],
-          ),
+              if (_answered && _feedback == 'wrong') ...[
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _next,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey.shade400,
+                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: Text(
+                      isLastQuestion ? 'Lihat Hasil 🏆' : 'Lanjut →',
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
         ),
+      ),
       ),
     );
   }

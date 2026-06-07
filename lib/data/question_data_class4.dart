@@ -93,25 +93,25 @@ class QuestionDataClass4 {
 
   static const Map<int, List<Map<String, String>>> writingQuestions = {
     1: [
-      {"q": "I get up in the morning", "a": "i get up in the morning"},
-      {"q": "I take a shower", "a": "i take a shower"},
-      {"q": "I make the bed", "a": "i make the bed"},
-      {"q": "I have breakfast", "a": "i have breakfast"},
-      {"q": "I go to school", "a": "i go to school"},
+      {"q": "Saya bangun di pagi hari", "a": "i get up in the morning"},
+      {"q": "Saya mandi", "a": "i take a shower"},
+      {"q": "Saya merapikan tempat tidur", "a": "i make the bed"},
+      {"q": "Saya sarapan", "a": "i have breakfast"},
+      {"q": "Saya pergi ke sekolah", "a": "i go to school"},
     ],
     2: [
-      {"q": "I am having porridge for breakfast", "a": "i am having porridge for breakfast"},
-      {"q": "What is for lunch", "a": "what is for lunch"},
-      {"q": "Noodles are spicy", "a": "noodles are spicy"},
-      {"q": "I like fish because it is delicious", "a": "i like fish because it is delicious"},
-      {"q": "The mango is sweet", "a": "the mango is sweet"},
+      {"q": "Saya makan bubur untuk sarapan", "a": "i am having porridge for breakfast"},
+      {"q": "Apa menu untuk makan siang", "a": "what is for lunch"},
+      {"q": "Mie itu pedas", "a": "noodles are spicy"},
+      {"q": "Saya suka ikan karena lezat", "a": "i like fish because it is delicious"},
+      {"q": "Mangga itu manis", "a": "the mango is sweet"},
     ],
     3: [
-      {"q": "May I borrow your kite", "a": "may i borrow your kite"},
-      {"q": "Yes you may", "a": "yes you may"},
-      {"q": "The robot is blue", "a": "the robot is blue"},
-      {"q": "The shape is a square", "a": "the shape is a square"},
-      {"q": "Let us share and play together", "a": "let us share and play together"},
+      {"q": "Bolehkah saya meminjam layang-layangmu", "a": "may i borrow your kite"},
+      {"q": "Ya kamu boleh", "a": "yes you may"},
+      {"q": "Robot itu berwarna biru", "a": "the robot is blue"},
+      {"q": "Bentuknya adalah persegi", "a": "the shape is a square"},
+      {"q": "Mari berbagi dan bermain bersama", "a": "let us share and play together"},
     ],
   };
 

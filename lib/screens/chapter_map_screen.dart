@@ -4,6 +4,9 @@ import '../utils/app_language.dart';
 import '../utils/app_strings.dart';
 import '../utils/progress_manager.dart';
 import '../utils/responsive_helper.dart';
+import '../utils/audio_manager.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ChapterMapScreen extends StatefulWidget {
   final int classNumber;
@@ -16,32 +19,31 @@ class ChapterMapScreen extends StatefulWidget {
 
 class _ChapterMapScreenState extends State<ChapterMapScreen>
     with TickerProviderStateMixin {
-  late AnimationController _chapter1Controller;
-  late AnimationController _chapter2Controller;
-  late AnimationController _chapter3Controller;
+  late List<AnimationController> _controllers;
   int _currentUnlockedChapter = 1;
 
   @override
   void initState() {
     super.initState();
     const duration = Duration(milliseconds: 300);
-    _chapter1Controller = AnimationController(vsync: this, duration: duration);
-    _chapter2Controller = AnimationController(vsync: this, duration: duration);
-    _chapter3Controller = AnimationController(vsync: this, duration: duration);
+    _controllers = List.generate(
+      9,
+      (index) => AnimationController(vsync: this, duration: duration),
+    );
     _loadProgress();
   }
 
   @override
   void dispose() {
-    _chapter1Controller.dispose();
-    _chapter2Controller.dispose();
-    _chapter3Controller.dispose();
+    for (var controller in _controllers) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
   Future<void> _loadProgress() async {
     try {
-      final level = await ProgressManager.getCurrentUnlockedLevel();
+      final level = await ProgressManager.getCurrentUnlockedLevel(widget.classNumber);
       final chapter = _calculateUnlockedChapter(level);
       if (mounted) {
         setState(() {
@@ -62,6 +64,7 @@ class _ChapterMapScreenState extends State<ChapterMapScreen>
     int chapterNumber,
     AnimationController controller,
   ) {
+    AudioManager().playSfx('click.wav');
     final isLocked = chapterNumber > _currentUnlockedChapter;
     if (isLocked) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -129,7 +132,10 @@ class _ChapterMapScreenState extends State<ChapterMapScreen>
                   ),
                   child: IconButton(
                     icon: Icon(Icons.arrow_back_ios, color: Colors.brown, size: context.responsive.iconSizeSmall),
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () {
+                      AudioManager().playSfx('click.wav');
+                      Navigator.pop(context);
+                    },
                     tooltip: s('btn_back'),
                     padding: EdgeInsets.all(responsive.spacing8),
                     constraints: const BoxConstraints(),
@@ -161,48 +167,55 @@ class _ChapterMapScreenState extends State<ChapterMapScreen>
                       Text(
                         s('choose_chapter'),
                         textAlign: TextAlign.center,
-                        style: responsive.getTextStyle(
-                          size: TextSize.heading,
-                          color: Colors.brown,
-                          weight: FontWeight.bold,
+                        style: GoogleFonts.fredoka(
+                          textStyle: responsive.getTextStyle(
+                            size: TextSize.heading,
+                            color: Colors.brown,
+                            weight: FontWeight.w900,
+                          ).copyWith(fontSize: responsive.spacing32 * 1.6),
                         ),
-                      ),
-                      SizedBox(height: responsive.spacing8),
+                      ).animate().slideY(begin: -0.5, end: 0, curve: Curves.easeOutBack, duration: 600.ms).fadeIn(),
+                      SizedBox(height: responsive.spacing12),
                       Text(
                         s('chapter_subtitle'),
                         textAlign: TextAlign.center,
-                        style: responsive.getTextStyle(
-                          size: TextSize.body,
-                          color: Colors.brown.withOpacity(0.8),
+                        style: GoogleFonts.fredoka(
+                          textStyle: responsive.getTextStyle(
+                            size: TextSize.body,
+                            color: Colors.brown.withOpacity(0.8),
+                          ).copyWith(fontSize: responsive.spacing20),
                         ),
                       ),
                       SizedBox(height: responsive.spacing40),
-                      Center(child: _springChapterButton(
-                        s('chapter_1'),
-                        Icons.looks_one,
-                        Colors.blue.shade700,
-                        _chapter1Controller,
-                        1,
-                        responsive,
-                      )),
-                      SizedBox(height: responsive.spacing24),
-                      Center(child: _springChapterButton(
-                        s('chapter_2'),
-                        Icons.looks_two,
-                        Colors.green.shade700,
-                        _chapter2Controller,
-                        2,
-                        responsive,
-                      )),
-                      SizedBox(height: responsive.spacing24),
-                      Center(child: _springChapterButton(
-                        s('chapter_3'),
-                        Icons.looks_3,
-                        Colors.orange.shade700,
-                        _chapter3Controller,
-                        3,
-                        responsive,
-                      )),
+                      Center(
+                        child: Wrap(
+                          spacing: responsive.spacing24,
+                          runSpacing: responsive.spacing32,
+                          alignment: WrapAlignment.center,
+                          children: List.generate(9, (index) {
+                            final chapterNum = index + 1;
+                            final colors = [
+                              Colors.blue.shade700,
+                              Colors.green.shade700,
+                              Colors.orange.shade700,
+                              Colors.purple.shade700,
+                              Colors.red.shade700,
+                              Colors.teal.shade700,
+                              Colors.indigo.shade700,
+                              Colors.pink.shade700,
+                              Colors.cyan.shade700,
+                            ];
+                            return _springChapterButton(
+                              'Bab $chapterNum',
+                              Icons.menu_book,
+                              colors[index],
+                              _controllers[index],
+                              chapterNum,
+                              responsive,
+                            ).animate().scale(delay: Duration(milliseconds: 100 * index), curve: Curves.elasticOut);
+                          }),
+                        ),
+                      ),
                       SizedBox(height: responsive.spacing40),
                     ],
                   );
@@ -275,10 +288,12 @@ class _ChapterMapScreenState extends State<ChapterMapScreen>
           SizedBox(height: responsive.spacing12),
           Text(
             text,
-            style: TextStyle(
-              color: isLocked ? Colors.grey.shade600 : Colors.brown,
-              fontSize: responsive.fontSizeBody,
-              fontWeight: FontWeight.bold,
+            style: GoogleFonts.fredoka(
+              textStyle: TextStyle(
+                color: isLocked ? Colors.grey.shade600 : Colors.brown,
+                fontSize: responsive.fontSizeBody,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           if (isLocked)

@@ -5,6 +5,8 @@ import '../utils/app_strings.dart';
 import '../utils/audio_manager.dart';
 import '../utils/responsive_helper.dart';
 import 'leaderboard_screen.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -32,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Future<void> _playIntroAudio() async {
     try {
-      await AudioManager().playAsset('backsound.mp3', volume: 0.4);
+      await AudioManager().playAsset('backsound.mp3');
     } catch (e) {
       debugPrint('⚠️ Gagal memutar backsound: $e');
     }
@@ -48,6 +50,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   void _onButtonPressed(String key, AnimationController controller) {
+    AudioManager().playSfx('click.wav');
     controller.forward().then((_) {
       Future.delayed(const Duration(milliseconds: 150), () {
         if (controller.isAnimating || controller.isCompleted) {
@@ -90,7 +93,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         content: Text(s('exit_msg')),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
+            onPressed: () {
+              AudioManager().playSfx('click.wav');
+              Navigator.pop(ctx);
+            },
             child: Text(
               s('cancel'),
               style: TextStyle(color: Colors.grey.shade700),
@@ -98,6 +104,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
           ElevatedButton(
             onPressed: () {
+              AudioManager().playSfx('click.wav');
               Navigator.pop(ctx);
               // Keluar dari aplikasi
               SystemNavigator.pop();
@@ -156,35 +163,50 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     Text(
                       s('welcome'),
                       textAlign: TextAlign.center,
-                      style: responsive.getTextStyle(
-                        size: TextSize.heading,
-                        color: Colors.brown,
-                        weight: FontWeight.normal,
+                      style: GoogleFonts.fredoka(
+                        textStyle: responsive.getTextStyle(
+                          size: TextSize.heading,
+                          color: Colors.brown,
+                          weight: FontWeight.bold,
+                        ).copyWith(fontSize: responsive.spacing32),
                       ),
                     ),
                     SizedBox(height: responsive.spacing5),
                     Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: responsive.spacing20,
-                        vertical: responsive.spacing5,
+                        horizontal: responsive.spacing24,
+                        vertical: responsive.spacing12,
                       ),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(
-                          responsive.radiusLarge,
+                        gradient: LinearGradient(
+                          colors: [Colors.orange.shade400, Colors.red.shade400],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
-                        color: Colors.white.withOpacity(0.4),
+                        borderRadius: BorderRadius.circular(30),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.orange.withOpacity(0.5),
+                            blurRadius: 16,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
                       ),
                       child: Text(
                         s('app_title'),
                         textAlign: TextAlign.center,
-                        style: responsive.getTextStyle(
-                          size: TextSize.xLarge,
-                          color: Colors.brown,
-                          weight: FontWeight.w900,
-                          letterSpacing: 2,
+                        style: GoogleFonts.fredoka(
+                          textStyle: responsive.getTextStyle(
+                            size: TextSize.xLarge,
+                            color: Colors.white,
+                            weight: FontWeight.w900,
+                            letterSpacing: 2,
+                          ).copyWith(fontSize: responsive.spacing40 * 1.2),
                         ),
                       ),
-                    ),
+                    ).animate(onPlay: (controller) => controller.repeat(reverse: true))
+                     .shimmer(duration: 2.seconds, color: Colors.white.withOpacity(0.3))
+                     .scaleXY(begin: 1.0, end: 1.05, duration: 1200.ms, curve: Curves.easeInOut),
                     SizedBox(height: responsive.spacing40),
                     Center(
                       child: _springButton(
@@ -255,8 +277,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           builder: (context) {
             final responsive = context.responsive;
             return Container(
-              width: responsive.buttonWidthMedium,
-              height: responsive.buttonHeight,
+              width: responsive.buttonWidthMedium * 1.2,
+              height: responsive.buttonHeight * 1.15,
               decoration: BoxDecoration(
                 color: color,
                 borderRadius: BorderRadius.circular(responsive.radiusXLarge),
@@ -278,15 +300,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   Icon(
                     icon,
                     color: Colors.white,
-                    size: responsive.iconSizeMedium,
+                    size: responsive.iconSizeMedium * 1.2,
                   ),
                   SizedBox(width: responsive.spacing12),
                   Text(
                     text,
-                    style: context.responsive.getTextStyle(
-                      size: TextSize.bodyLarge,
-                      color: Colors.white,
-                      weight: FontWeight.bold,
+                    style: GoogleFonts.fredoka(
+                      textStyle: context.responsive.getTextStyle(
+                        size: TextSize.bodyLarge,
+                        color: Colors.white,
+                        weight: FontWeight.bold,
+                      ).copyWith(fontSize: responsive.fontSizeBodyLarge * 1.2),
                     ),
                   ),
                 ],

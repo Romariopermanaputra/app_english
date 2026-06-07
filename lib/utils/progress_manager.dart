@@ -1,14 +1,16 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProgressManager {
-  static const String _keyCurrentLevel = 'current_unlocked_level';
+  static String _getKey(int classNumber) {
+    return 'current_unlocked_level_class_$classNumber';
+  }
 
   // ✅ Dapatkan level tertinggi yang sudah terbuka (default: 1)
-  static Future<int> getCurrentUnlockedLevel() async {
+  static Future<int> getCurrentUnlockedLevel(int classNumber) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final level = prefs.getInt(_keyCurrentLevel) ?? 1;
-      print('📦 [ProgressManager] Loaded: level $level');
+      final level = prefs.getInt(_getKey(classNumber)) ?? 1;
+      print('📦 [ProgressManager] Loaded: level $level for class $classNumber');
       return level;
     } catch (e) {
       print('❌ [ProgressManager] Error loading: $e');
@@ -17,19 +19,19 @@ class ProgressManager {
   }
 
   // ✅ Update level yang sudah selesai dikerjakan
-  static Future<void> completeLevel(int level) async {
+  static Future<void> completeLevel(int classNumber, int level) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final current = await getCurrentUnlockedLevel();
+      final current = await getCurrentUnlockedLevel(classNumber);
 
-      print('🔍 [ProgressManager] completeLevel($level): current=$current');
+      print('🔍 [ProgressManager] completeLevel($level): current=$current for class $classNumber');
 
       if (level >= current) {
         final newLevel = level + 1;
-        await prefs.setInt(_keyCurrentLevel, newLevel);
+        await prefs.setInt(_getKey(classNumber), newLevel);
 
         // ✅ Verifikasi bahwa data benar-benar tersimpan
-        final verify = prefs.getInt(_keyCurrentLevel);
+        final verify = prefs.getInt(_getKey(classNumber));
         print('✅ [ProgressManager] Saved: $verify (expected: $newLevel)');
       } else {
         print('⚠️ [ProgressManager] No update needed: $level < $current');
@@ -40,9 +42,9 @@ class ProgressManager {
   }
 
   // ✅ Reset progress (untuk testing)
-  static Future<void> resetProgress() async {
+  static Future<void> resetProgress(int classNumber) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_keyCurrentLevel, 1);
-    print('🔄 [ProgressManager] Progress reset to level 1');
+    await prefs.setInt(_getKey(classNumber), 1);
+    print('🔄 [ProgressManager] Progress reset to level 1 for class $classNumber');
   }
 }

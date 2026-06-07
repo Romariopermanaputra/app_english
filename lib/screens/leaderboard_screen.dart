@@ -4,6 +4,7 @@ import '../utils/app_strings.dart';
 import '../utils/auth_service.dart';
 import '../utils/score_service.dart';
 import '../utils/responsive_helper.dart';
+import '../utils/audio_manager.dart';
 
 class LeaderboardScreen extends StatefulWidget {
   const LeaderboardScreen({super.key});
@@ -17,6 +18,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
   List<LeaderboardEntry> _entries = [];
   bool   _isLoading   = true;
   String _currentUser = '-';
+  int    _selectedClass = 4; // Default to Class 4
 
   late AnimationController _animCtrl;
   late Animation<double>   _fadeAnim;
@@ -40,7 +42,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
 
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
-    final entries = await ScoreService().getLeaderboard();
+    final entries = await ScoreService().getLeaderboard(_selectedClass);
     final user    = await AuthService().getCurrentUsername();
     if (mounted) {
       setState(() {
@@ -61,34 +63,33 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
         String s(String key) => AppStrings.get(key, lang);
 
         return Scaffold(
-          backgroundColor: const Color(0xFF0D1B2A),
+          backgroundColor: const Color(0xFF87CEEB),
           body: Stack(
             children: [
               // ─── BACKGROUND gradient ──────────────────────────
               Container(
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
                     colors: [
-                      Color(0xFF0D1B2A),
-                      Color(0xFF1B2D3E),
-                      Color(0xFF0D3B1F),
+                      Color(0xFF6dd5ed),
+                      Color(0xFF2193b0),
                     ],
                   ),
                 ),
               ),
 
-              // ─── BINTANG DEKORATIF ────────────────────────────
-              ...List.generate(20, (i) {
+              // ─── AWAN DEKORATIF ────────────────────────────
+              ...List.generate(8, (i) {
                 final x = (i * 137.5) % MediaQuery.of(context).size.width;
-                final y = (i * 97.3)  % MediaQuery.of(context).size.height;
+                final y = (i * 115.3) % (MediaQuery.of(context).size.height / 2);
                 return Positioned(
                   left: x, top: y,
                   child: Icon(
-                    Icons.star,
-                    size: 4 + (i % 3) * 3.0,
-                    color: Colors.white.withOpacity(0.08 + (i % 5) * 0.04),
+                    Icons.cloud,
+                    size: 40 + (i % 3) * 20.0,
+                    color: Colors.white.withOpacity(0.4 + (i % 2) * 0.2),
                   ),
                 );
               }),
@@ -98,6 +99,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
                 child: Column(
                   children: [
                     _buildHeader(s),
+                    _buildClassSelector(),
                     Expanded(
                       child: _isLoading
                           ? _buildLoading()
@@ -125,7 +127,10 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
       child: Row(
         children: [
           IconButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              AudioManager().playSfx('click.wav');
+              Navigator.pop(context);
+            },
             icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
           ),
           const Spacer(),
@@ -149,6 +154,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
           const Spacer(),
           IconButton(
             onPressed: () {
+              AudioManager().playSfx('click.wav');
               _animCtrl.reset();
               _loadData();
             },
@@ -156,6 +162,59 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
             tooltip: 'Refresh',
           ),
         ],
+      ),
+    );
+  }
+
+  // ─── CLASS SELECTOR ────────────────────────────────────────────────
+  Widget _buildClassSelector() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [4, 5, 6].map((cls) {
+          final isSelected = _selectedClass == cls;
+          return Expanded(
+            child: GestureDetector(
+              onTap: () {
+                if (!isSelected) {
+                  AudioManager().playSfx('click.wav');
+                  setState(() => _selectedClass = cls);
+                  _animCtrl.reset();
+                  _loadData();
+                }
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: isSelected ? Colors.amber : Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: Colors.amber.withOpacity(0.4),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          )
+                        ]
+                      : [],
+                ),
+                child: Center(
+                  child: Text(
+                    'Kelas $cls',
+                    style: TextStyle(
+                      color: isSelected ? Colors.brown.shade800 : Colors.white70,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }).toList(),
       ),
     );
   }
@@ -291,25 +350,24 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
       margin: const EdgeInsets.fromLTRB(16, 20, 16, 8),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.white.withOpacity(0.08),
-            Colors.white.withOpacity(0.03),
-          ],
-        ),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         children: [
           Text(
             s('leaderboard_top3'),
             style: const TextStyle(
-              color: Colors.amber,
-              fontWeight: FontWeight.bold,
-              fontSize: 13,
+              color: Color(0xFFFFA000),
+              fontWeight: FontWeight.w900,
+              fontSize: 16,
               letterSpacing: 1.5,
             ),
           ),
@@ -368,8 +426,8 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
                       child: Text(
                         entry.username,
                         style: TextStyle(
-                          color: isMe ? Colors.greenAccent : Colors.white,
-                          fontSize: 11,
+                          color: isMe ? Colors.green.shade700 : const Color(0xFF2D3748),
+                          fontSize: 13,
                           fontWeight: FontWeight.bold,
                         ),
                         textAlign: TextAlign.center,
@@ -440,19 +498,26 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
     final rankColor = rankColors[entry.rank] ?? Colors.white38;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
         color: isMe
-            ? Colors.green.withOpacity(0.12)
-            : Colors.white.withOpacity(0.04),
-        borderRadius: BorderRadius.circular(16),
+            ? Colors.green.shade50
+            : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
         border: Border.all(
           color: isMe
-              ? Colors.greenAccent.withOpacity(0.4)
+              ? Colors.green.shade300
               : isTop
-                  ? rankColor.withOpacity(0.3)
-                  : Colors.white.withOpacity(0.06),
-          width: isMe ? 1.5 : 1,
+                  ? rankColor.withOpacity(0.5)
+                  : Colors.transparent,
+          width: isMe ? 2.5 : 1.5,
         ),
       ),
       child: Padding(
@@ -470,9 +535,9 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
                   : Text(
                       '#${entry.rank}',
                       style: const TextStyle(
-                        color: Colors.white38,
+                        color: Colors.grey,
                         fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                        fontSize: 16,
                       ),
                     ),
             ),
@@ -493,9 +558,9 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
                 child: Text(
                   entry.username[0].toUpperCase(),
                   style: TextStyle(
-                    color: isMe ? Colors.greenAccent : Colors.white70,
+                    color: isMe ? Colors.green.shade700 : Colors.blue.shade700,
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                    fontSize: 18,
                   ),
                 ),
               ),
@@ -512,9 +577,9 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
                       Text(
                         entry.username,
                         style: TextStyle(
-                          color: isMe ? Colors.greenAccent : Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
+                          color: isMe ? Colors.green.shade700 : const Color(0xFF2D3748),
+                          fontWeight: FontWeight.w800,
+                          fontSize: 16,
                         ),
                       ),
                       if (isMe) ...[
@@ -541,7 +606,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
                   const SizedBox(height: 2),
                   Text(
                     '${entry.gamesPlayed}x main • ${entry.percentage}% akurasi',
-                    style: const TextStyle(color: Colors.white38, fontSize: 11),
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
                   ),
                 ],
               ),
@@ -554,14 +619,14 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
                 Text(
                   '${entry.totalScore}',
                   style: TextStyle(
-                    color: isTop ? rankColor : Colors.white,
+                    color: isTop ? rankColor : Colors.orange.shade700,
                     fontWeight: FontWeight.w900,
-                    fontSize: 20,
+                    fontSize: 22,
                   ),
                 ),
-                const Text(
+                Text(
                   'pts',
-                  style: TextStyle(color: Colors.white38, fontSize: 11),
+                  style: TextStyle(color: Colors.grey.shade500, fontSize: 13, fontWeight: FontWeight.bold),
                 ),
               ],
             ),

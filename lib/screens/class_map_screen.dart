@@ -3,6 +3,9 @@ import '../screens/chapter_map_screen.dart';
 import '../utils/app_language.dart';
 import '../utils/app_strings.dart';
 import '../utils/responsive_helper.dart';
+import '../utils/audio_manager.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ClassMapScreen extends StatefulWidget {
   const ClassMapScreen({super.key});
@@ -38,6 +41,7 @@ class _ClassMapScreenState extends State<ClassMapScreen>
     int classNumber,
     AnimationController controller,
   ) {
+    AudioManager().playSfx('click.wav');
     controller.forward().then((_) {
       Future.delayed(const Duration(milliseconds: 150), () {
         controller.reverse();
@@ -85,7 +89,10 @@ class _ClassMapScreenState extends State<ClassMapScreen>
                   ),
                   child: IconButton(
                     icon: Icon(Icons.arrow_back_ios, color: Colors.brown, size: context.responsive.iconSizeSmall),
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () {
+                      AudioManager().playSfx('click.wav');
+                      Navigator.pop(context);
+                    },
                     tooltip: s('btn_back'),
                     padding: EdgeInsets.all(responsive.spacing8),
                     constraints: const BoxConstraints(),
@@ -117,22 +124,26 @@ class _ClassMapScreenState extends State<ClassMapScreen>
                       Text(
                         s('choose_class'),
                         textAlign: TextAlign.center,
-                        style: responsive.getTextStyle(
-                          size: TextSize.heading,
-                          color: Colors.brown,
-                          weight: FontWeight.bold,
+                        style: GoogleFonts.fredoka(
+                          textStyle: responsive.getTextStyle(
+                            size: TextSize.heading,
+                            color: Colors.brown,
+                            weight: FontWeight.w900,
+                          ).copyWith(fontSize: responsive.spacing32 * 1.6),
                         ),
-                      ),
-                      SizedBox(height: responsive.spacing8),
+                      ).animate().slideY(begin: -0.5, end: 0, curve: Curves.easeOutBack, duration: 600.ms).fadeIn(),
+                      SizedBox(height: responsive.spacing12),
                       Text(
                         s('class_subtitle'),
                         textAlign: TextAlign.center,
-                        style: responsive.getTextStyle(
-                          size: TextSize.body,
-                          color: Colors.brown.withOpacity(0.8),
+                        style: GoogleFonts.fredoka(
+                          textStyle: responsive.getTextStyle(
+                            size: TextSize.body,
+                            color: Colors.brown.withOpacity(0.8),
+                          ).copyWith(fontSize: responsive.spacing20),
                         ),
                       ),
-                      SizedBox(height: responsive.spacing40),
+                      SizedBox(height: responsive.spacing40 * 1.5),
                       Center(child: _springClassButton(
                         s('class_4'),
                         Icons.looks_4,
@@ -140,7 +151,7 @@ class _ClassMapScreenState extends State<ClassMapScreen>
                         _class4Controller,
                         4,
                         responsive,
-                      )),
+                      ).animate().scale(delay: 200.ms, curve: Curves.elasticOut)),
                       SizedBox(height: responsive.spacing24),
                       Center(child: _springClassButton(
                         s('class_5'),
@@ -149,7 +160,7 @@ class _ClassMapScreenState extends State<ClassMapScreen>
                         _class5Controller,
                         5,
                         responsive,
-                      )),
+                      ).animate().scale(delay: 400.ms, curve: Curves.elasticOut)),
                       SizedBox(height: responsive.spacing24),
                       Center(child: _springClassButton(
                         s('class_6'),
@@ -158,7 +169,7 @@ class _ClassMapScreenState extends State<ClassMapScreen>
                         _class6Controller,
                         6,
                         responsive,
-                      )),
+                      ).animate().scale(delay: 600.ms, curve: Curves.elasticOut)),
                       SizedBox(height: responsive.spacing40),
                     ],
                   );
@@ -191,32 +202,34 @@ class _ClassMapScreenState extends State<ClassMapScreen>
               child: child,
             ),
             child: Container(
-              width: responsive.spacing32 * 2.2,
-              height: responsive.spacing32 * 2.2,
+              width: responsive.spacing32 * 3.5,
+              height: responsive.spacing32 * 3.5,
               decoration: BoxDecoration(
                 color: color,
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.white.withOpacity(0.5), width: 3),
+                border: Border.all(color: Colors.white.withOpacity(0.5), width: 4),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.25),
-                    blurRadius: 12,
+                    blurRadius: 16,
                     offset: Offset(0, responsive.spacing8),
                   ),
                 ],
               ),
               child: Center(
-                child: Icon(icon, color: Colors.white, size: responsive.iconSizeLarge),
+                child: Icon(icon, color: Colors.white, size: responsive.iconSizeLarge * 1.5),
               ),
             ),
           ),
-          SizedBox(height: responsive.spacing12),
+          SizedBox(height: responsive.spacing16),
           Text(
             text,
-            style: TextStyle(
-              color: Colors.brown,
-              fontSize: responsive.fontSizeBody,
-              fontWeight: FontWeight.bold,
+            style: GoogleFonts.fredoka(
+              textStyle: TextStyle(
+                color: Colors.brown,
+                fontSize: responsive.fontSizeBody * 1.5,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],

@@ -94,25 +94,25 @@ class QuestionDataClass5 {
 
   static const Map<int, List<Map<String, String>>> writingQuestions = {
     1: [
-      {"q": "I want to buy two kilos of mangoes", "a": "i want to buy two kilos of mangoes"},
-      {"q": "How much is the broccoli", "a": "how much is the broccoli"},
-      {"q": "I want to buy one bunch of spinach", "a": "i want to buy one bunch of spinach"},
-      {"q": "The mangoes are fresh", "a": "the mangoes are fresh"},
-      {"q": "We go to the fruit market", "a": "we go to the fruit market"},
+      {"q": "Saya ingin membeli dua kilo mangga", "a": "i want to buy two kilos of mangoes"},
+      {"q": "Berapa harga brokoli itu", "a": "how much is the broccoli"},
+      {"q": "Saya ingin membeli seikat bayam", "a": "i want to buy one bunch of spinach"},
+      {"q": "Mangga-mangga itu segar", "a": "the mangoes are fresh"},
+      {"q": "Kita pergi ke pasar buah", "a": "we go to the fruit market"},
     ],
     2: [
-      {"q": "Can you get me a plate please", "a": "can you get me a plate please"},
-      {"q": "Spread the margarine", "a": "spread the margarine"},
-      {"q": "Heat the cooking oil", "a": "heat the cooking oil"},
-      {"q": "Toast the bread", "a": "toast the bread"},
-      {"q": "Cut the sandwich in half", "a": "cut the sandwich in half"},
+      {"q": "Tolong ambilkan saya sebuah piring", "a": "can you get me a plate please"},
+      {"q": "Oleskan margarin", "a": "spread the margarine"},
+      {"q": "Panaskan minyak goreng", "a": "heat the cooking oil"},
+      {"q": "Panggang rotinya", "a": "toast the bread"},
+      {"q": "Potong sandwich menjadi dua", "a": "cut the sandwich in half"},
     ],
     3: [
-      {"q": "Go straight on Garuda Street", "a": "go straight on garuda street"},
-      {"q": "Turn right on Merpati Street", "a": "turn right on merpati street"},
-      {"q": "My house is beside the school", "a": "my house is beside the school"},
-      {"q": "Turn left at the end of the street", "a": "turn left at the end of the street"},
-      {"q": "We play together happily", "a": "we play together happily"},
+      {"q": "Jalan lurus di Jalan Garuda", "a": "go straight on garuda street"},
+      {"q": "Belok kanan di Jalan Merpati", "a": "turn right on merpati street"},
+      {"q": "Rumahku ada di samping sekolah", "a": "my house is beside the school"},
+      {"q": "Belok kiri di ujung jalan", "a": "turn left at the end of the street"},
+      {"q": "Kita bermain bersama dengan gembira", "a": "we play together happily"},
     ],
   };
 

@@ -6,6 +6,9 @@ import '../utils/app_language.dart';
 import '../utils/app_strings.dart';
 import '../utils/progress_manager.dart';
 import '../utils/responsive_helper.dart';
+import '../utils/audio_manager.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class LevelMapScreen extends StatefulWidget {
   final int chapter;
@@ -19,9 +22,7 @@ class LevelMapScreen extends StatefulWidget {
 
 class _LevelMapScreenState extends State<LevelMapScreen>
     with TickerProviderStateMixin {
-  late AnimationController _level1Controller;
-  late AnimationController _level2Controller;
-  late AnimationController _level3Controller;
+  late List<AnimationController> _controllers;
   int _unlockedLevel = 1;
 
   @override
@@ -30,9 +31,10 @@ class _LevelMapScreenState extends State<LevelMapScreen>
     print('🔧 [DEBUG] LevelMapScreen initialized');
 
     const duration = Duration(milliseconds: 300);
-    _level1Controller = AnimationController(vsync: this, duration: duration);
-    _level2Controller = AnimationController(vsync: this, duration: duration);
-    _level3Controller = AnimationController(vsync: this, duration: duration);
+    _controllers = List.generate(
+      9,
+      (index) => AnimationController(vsync: this, duration: duration),
+    );
 
     _loadProgress(); // ← Load progress dari storage
     _debugCheckAsset();
@@ -42,7 +44,7 @@ class _LevelMapScreenState extends State<LevelMapScreen>
   Future<void> _loadProgress() async {
     print('🔄 [LevelMap] _loadProgress() called');
     try {
-      final level = await ProgressManager.getCurrentUnlockedLevel();
+      final level = await ProgressManager.getCurrentUnlockedLevel(widget.classNumber);
       print('📦 [LevelMap] Loaded level: $level');
       if (mounted) {
         setState(() {
@@ -57,9 +59,9 @@ class _LevelMapScreenState extends State<LevelMapScreen>
 
   @override
   void dispose() {
-    _level1Controller.dispose();
-    _level2Controller.dispose();
-    _level3Controller.dispose();
+    for (var controller in _controllers) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -79,6 +81,7 @@ class _LevelMapScreenState extends State<LevelMapScreen>
     AnimationController controller,
     int levelNumber,
   ) {
+    AudioManager().playSfx('click.wav');
     print(
       '👆 [LevelMap] Tapped: $levelName (number: $levelNumber), unlocked: $_unlockedLevel',
     );
@@ -118,21 +121,20 @@ class _LevelMapScreenState extends State<LevelMapScreen>
         return;
       }
 
-      // ✅ Gunakan if-else langsung tanpa variabel perantara agar aman dari error tipe data
-      if (levelName == 'Level 1') {
-        print('📖 Buka modul Reading');
+      // ✅ Gunakan modulo untuk menentukan tipe level
+      if (levelNumber % 3 == 1) { // 1, 4, 7 -> Reading
+        print('📖 Buka modul Reading (Level $levelNumber)');
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => ReadingScreen(chapter: widget.chapter, classNumber: widget.classNumber),
           ),
         ).then((_) {
-          // 🔄 PENTING: Refresh progress setelah user kembali dari screen soal
           print('🔙 [LevelMap] Returned from Reading, refreshing progress...');
           _loadProgress();
         });
-      } else if (levelName == 'Level 2') {
-        print('✍️ Buka modul Writing');
+      } else if (levelNumber % 3 == 2) { // 2, 5, 8 -> Writing
+        print('✍️ Buka modul Writing (Level $levelNumber)');
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -142,8 +144,8 @@ class _LevelMapScreenState extends State<LevelMapScreen>
           print('🔙 [LevelMap] Returned from Writing, refreshing progress...');
           _loadProgress();
         });
-      } else if (levelName == 'Level 3') {
-        print('🎤 Buka modul Speaking');
+      } else if (levelNumber % 3 == 0) { // 3, 6, 9 -> Speaking
+        print('🎤 Buka modul Speaking (Level $levelNumber)');
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -192,7 +194,10 @@ class _LevelMapScreenState extends State<LevelMapScreen>
                       color: Colors.brown,
                       size: responsive.iconSizeSmall,
                     ),
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () {
+                      AudioManager().playSfx('click.wav');
+                      Navigator.pop(context);
+                    },
                     tooltip: 'Kembali',
                     padding: EdgeInsets.all(responsive.spacing8),
                     constraints: const BoxConstraints(),
@@ -253,61 +258,74 @@ class _LevelMapScreenState extends State<LevelMapScreen>
                         Text(
                           s('choose_level_title'),
                           textAlign: TextAlign.center,
-                          style: responsive.getTextStyle(
-                            size: TextSize.heading,
-                            color: Colors.brown,
-                            weight: FontWeight.bold,
+                          style: GoogleFonts.fredoka(
+                            textStyle: responsive.getTextStyle(
+                              size: TextSize.heading,
+                              color: Colors.brown,
+                              weight: FontWeight.w900,
+                            ).copyWith(fontSize: responsive.spacing32 * 1.6),
                           ),
-                        ),
-                        SizedBox(height: responsive.spacing8),
+                        ).animate().slideY(begin: -0.5, end: 0, curve: Curves.easeOutBack, duration: 600.ms).fadeIn(),
+                        SizedBox(height: responsive.spacing12),
                         Text(
                           s('level_subtitle'),
                           textAlign: TextAlign.center,
-                          style: responsive.getTextStyle(
-                            size: TextSize.body,
-                            color: Colors.brown.withOpacity(0.8),
+                          style: GoogleFonts.fredoka(
+                            textStyle: responsive.getTextStyle(
+                              size: TextSize.body,
+                              color: Colors.brown.withOpacity(0.8),
+                            ).copyWith(fontSize: responsive.spacing20),
                           ),
                         ),
                         SizedBox(height: responsive.spacing8),
                         Text(
                           '${s('chapter')} ${widget.chapter}',
                           textAlign: TextAlign.center,
-                          style: responsive.getTextStyle(
-                            size: TextSize.bodyLarge,
-                            color: Colors.brown.withOpacity(0.9),
-                            weight: FontWeight.w600,
+                          style: GoogleFonts.fredoka(
+                            textStyle: responsive.getTextStyle(
+                              size: TextSize.bodyLarge,
+                              color: Colors.brown.withOpacity(0.9),
+                              weight: FontWeight.w600,
+                            ).copyWith(fontSize: responsive.spacing24),
                           ),
                         ),
-                        SizedBox(height: responsive.spacing32),
+                        SizedBox(height: responsive.spacing40),
 
                         // 🔘 TOMBOL LEVEL (BULAT + TEKS DI BAWAH)
                         Center(
-                          child: _springLevelButton(
-                            s('level_1'),
-                            Icons.menu_book,
-                            Colors.blue.shade700,
-                            _level1Controller,
-                            1,
-                          ),
-                        ),
-                        SizedBox(height: responsive.spacing24),
-                        Center(
-                          child: _springLevelButton(
-                            s('level_2'),
-                            Icons.edit,
-                            Colors.green.shade700,
-                            _level2Controller,
-                            2,
-                          ),
-                        ),
-                        SizedBox(height: responsive.spacing24),
-                        Center(
-                          child: _springLevelButton(
-                            s('level_3'),
-                            Icons.mic,
-                            Colors.orange.shade700,
-                            _level3Controller,
-                            3,
+                          child: Wrap(
+                            spacing: responsive.spacing24,
+                            runSpacing: responsive.spacing32,
+                            alignment: WrapAlignment.center,
+                            children: List.generate(9, (index) {
+                              final levelNum = index + 1;
+                              
+                              String label;
+                              IconData iconData;
+                              Color color;
+
+                              if (levelNum % 3 == 1) {
+                                label = 'Reading ${(levelNum / 3).ceil()}';
+                                iconData = Icons.menu_book;
+                                color = Colors.blue.shade700;
+                              } else if (levelNum % 3 == 2) {
+                                label = 'Writing ${(levelNum / 3).ceil()}';
+                                iconData = Icons.edit;
+                                color = Colors.green.shade700;
+                              } else {
+                                label = 'Speaking ${(levelNum / 3).ceil()}';
+                                iconData = Icons.mic;
+                                color = Colors.orange.shade700;
+                              }
+
+                              return _springLevelButton(
+                                label,
+                                iconData,
+                                color,
+                                _controllers[index],
+                                levelNum,
+                              ).animate().scale(delay: Duration(milliseconds: 100 * index), curve: Curves.elasticOut);
+                            }),
                           ),
                         ),
                         SizedBox(height: responsive.spacing40),
@@ -388,16 +406,17 @@ class _LevelMapScreenState extends State<LevelMapScreen>
                 ),
               ),
             ),
-            SizedBox(height: responsive.spacing8),
-            Text(
-              text,
-              style: responsive.getTextStyle(
-                size: TextSize.body,
+            SizedBox(height: responsive.spacing12),
+          Text(
+            text,
+            style: GoogleFonts.fredoka(
+              textStyle: TextStyle(
                 color: isLocked ? Colors.grey.shade600 : Colors.brown,
-                weight: FontWeight.bold,
+                fontSize: responsive.fontSizeBody,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            if (isLocked) 
+          ),  if (isLocked) 
               Text('🔒', style: TextStyle(fontSize: responsive.fontSizeSmall)),
           ],
         ),
